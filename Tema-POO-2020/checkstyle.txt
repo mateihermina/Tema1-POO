@@ -1,0 +1,10 @@
+Starting audit...
+[ERROR] C:\Users\Pufosica\Desktop\Rezolvare_tema_1\Tema1-POO\Tema-POO-2020\.\src\fileio\Input.java:601:5: Missing a Javadoc comment. [MissingJavadocMethod]
+[ERROR] C:\Users\Pufosica\Desktop\Rezolvare_tema_1\Tema1-POO\Tema-POO-2020\.\src\fileio\Input.java:601:35: Parameter number should be final. [FinalParameters]
+[ERROR] C:\Users\Pufosica\Desktop\Rezolvare_tema_1\Tema1-POO\Tema-POO-2020\.\src\fileio\Input.java:601:47: Parameter sortType should be final. [FinalParameters]
+[ERROR] C:\Users\Pufosica\Desktop\Rezolvare_tema_1\Tema1-POO\Tema-POO-2020\.\src\fileio\Input.java:605:13: 'if' is not followed by whitespace. [WhitespaceAfter]
+[ERROR] C:\Users\Pufosica\Desktop\Rezolvare_tema_1\Tema1-POO\Tema-POO-2020\.\src\fileio\SerialInputData.java:1: File does not end with a newline. [NewlineAtEndOfFile]
+[ERROR] C:\Users\Pufosica\Desktop\Rezolvare_tema_1\Tema1-POO\Tema-POO-2020\.\src\fileio\UserInputData.java:184:5: Missing a Javadoc comment. [MissingJavadocMethod]
+[ERROR] C:\Users\Pufosica\Desktop\Rezolvare_tema_1\Tema1-POO\Tema-POO-2020\.\src\main\Main.java:72:5: Method length is 203 lines (max allowed is 150). [MethodLength]
+Audit done.
+Checkstyle ends with 7 errors.
