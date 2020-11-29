@@ -181,6 +181,9 @@ public final class UserInputData {
         return message;
     }
 
+    /**
+     * Calcultes the number of ratings that a user has given to movies and serials
+     */
     public void setNumberofRatings() {
         Integer number = 0;
         number += this.ratedMovies.size();
@@ -220,11 +223,8 @@ class RatingsDescendingSortUser implements Comparator<UserInputData> {
         } else if (user1.getNumberOfRatings() > user2.getNumberOfRatings()) {
             return -1;
         } else {
-            if (user1.getUsername().compareTo(user2.getUsername()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return user1.getUsername().compareTo(user2.getUsername());
         }
     }
 }
+

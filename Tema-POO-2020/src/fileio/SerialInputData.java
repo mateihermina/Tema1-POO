@@ -26,6 +26,7 @@ public final class SerialInputData extends ShowInput {
     private HashMap<Integer, HashMap<Integer, Double>> ratingsOfSeasons;
     private int totalDuration = 0;
     private Integer numberOfViews = 0;
+    private  int position = 0;
     public SerialInputData(final String title, final ArrayList<String> cast,
                            final ArrayList<String> genres,
                            final int numberOfSeasons, final ArrayList<Season> seasons,
@@ -105,6 +106,9 @@ public final class SerialInputData extends ShowInput {
     public int getTotalDuration() {
         return totalDuration;
     }
+    public void setNumberOfViews(final Integer views) {
+        this.numberOfViews = 0;
+    }
 
     @Override
     public String toString() {
@@ -134,6 +138,21 @@ public final class SerialInputData extends ShowInput {
     }
     public Integer getNumberOfViews() {
         return numberOfViews;
+    }
+    public void setPosition(final int position) {
+        this.position = position;
+    }
+    public int getPosition() {
+        return this.position;
+    }
+    public void resetRating() {
+        this.rating = 0.0;
+        //this.number = 0;
+        for (int i = 1; i <= numberOfSeasons; i++) {
+            HashMap<Integer, Double> rate = new HashMap<Integer, Double>();
+            rate.put(0, 0.0);
+            ratingsOfSeasons.replace(i, rate);
+        }
     }
 
 }

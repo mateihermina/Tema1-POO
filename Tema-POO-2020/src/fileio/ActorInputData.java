@@ -4,8 +4,10 @@ import actor.ActorsAwards;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Information about an actor, retrieved from parsing the input test files
@@ -47,6 +49,8 @@ public final class ActorInputData {
         this.careerDescription = careerDescription;
         this.filmography = filmography;
         this.awards = awards;
+        this.ratingsNumber = 0;
+        this.awardsNumber = 0;
     }
 
     public String getName() {
@@ -98,35 +102,51 @@ public final class ActorInputData {
      * adds a rating of a video
      */
     public void addRating(final Double rating) {
-        int ratings = this.getRatingsNumber();
+        System.out.println("ADD RATING: "+ this.getName()+" "+  this.getAverageRating());
+        /*int ratings = this.getRatingsNumber();
         ratings++;
-        this.setRatingsNumber(ratings);
-        this.averageRating += rating;
+        this.setRatingsNumber(ratings);*/
+       this.ratingsNumber++;
+       this.averageRating += rating;
     }
     /**
      * sets the avrage rating of an actor after adding all ratings for videos
      */
     public void setAverageRating() {
-
-        if (this.getRatingsNumber() > 0) {
+        System.out.println(this.getName()+" "+ this.getRatingsNumber()+ " "+ this.getAverageRating());
+        /*if (this.getRatingsNumber() > 0) {
             this.averageRating = this.getAverageRating() / this.getRatingsNumber();
+        } else {
+            this.averageRating = 0.0;
+        }*/
+        if(this.ratingsNumber > 0) {
+            this.averageRating = this.averageRating / this.ratingsNumber;
         } else {
             this.averageRating = 0.0;
         }
     }
+    public void setRating(Double rating) {this.averageRating = rating;}
+
+
     public Double getAverageRating() {
         return averageRating;
     }
     /**
      * calcultes the awards number for an actor
      */
-    public void calculateAwardsNumber(final List<String> awardsList) {
-        for (int i = 0; i < awardsList.size(); i++) {
+    public void calculateAwardsNumber() {
+        /*for (int i = 0; i < awardsList.size(); i++) {
             if (ActorsAwards.valueOf(awardsList.get(i)) != null) {
                 Integer number = awards.get(ActorsAwards.valueOf(awardsList.get(i)));
                 awardsNumber += number;
             }
+        }*/
+       Set<ActorsAwards> keys= awards.keySet();
+        this.awardsNumber = 0;
+        for(ActorsAwards key : keys) {
+            this.awardsNumber += awards.get(key);
         }
+        //this.awardsNumber = awards.size();
     }
 
     public Integer getAwardsNumber() {
@@ -136,9 +156,23 @@ public final class ActorInputData {
      * returns true if all strings from words are in actor's career description
      */
     public Boolean hasKeywords(final List<String> words) {
-        for (int i = 0; i < words.size(); i++) {
+        HashMap<String, Integer> map = new HashMap<String, Integer>();
+        String[] listOfWords = getCareerDescription().split("\\W");
+        for(int i = 0; i < listOfWords.length; i++) {
+
+            if(map.get(listOfWords[i].toLowerCase()) == null) {
+                map.put(listOfWords[i].toLowerCase(), 1);
+            }
+        }
+       /*for (int i = 0; i < words.size(); i++) {
             String lowerCaseWord = words.get(i).toLowerCase();
             if (!this.getCareerDescription().toLowerCase().contains(lowerCaseWord)) {
+                return false;
+            }
+        }*/
+        for (int i = 0; i < words.size(); i++) {
+            String lowerCaseWord = words.get(i).toLowerCase();
+            if (map.get(lowerCaseWord) == null) {
                 return false;
             }
         }
@@ -203,11 +237,7 @@ class AwardsAscendingSort implements Comparator<ActorInputData> {
         } else if (actor1.getAwardsNumber() > actor2.getAwardsNumber()) {
             return 1;
         } else {
-            if (actor1.getName().compareTo(actor2.getName()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return actor1.getName().compareTo(actor2.getName());
         }
     }
 }

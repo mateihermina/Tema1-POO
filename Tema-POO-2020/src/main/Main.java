@@ -187,7 +187,7 @@ public final class Main {
                             List<List<String>> filters = actionInputData.get(i).getFilters();
                             String year = filters.get(0).get(0);
                             List<String> genres = filters.get(1);
-                            input.markFavoriteShows();
+                            //input.markFavoriteShows();
                             String message
                                     = input.mostFavoriteMovies(year, genres, sortType, number);
                             arrayResult.add(fileWriter.writeFile(id, null, message));
@@ -268,6 +268,35 @@ public final class Main {
 
                     }
 
+                } else if (actionInputData.get(i).getActionType().equals("recommendation")) {
+                    if (actionInputData.get(i).getType().equals("standard")) {
+                        int id = actionInputData.get(i).getActionId();
+                        String username = actionInputData.get(i).getUsername();
+                        String message = input.getStandardRecommendation(username);
+                        arrayResult.add(fileWriter.writeFile(id, null, message));
+                    } else if (actionInputData.get(i).getType().equals("best_unseen")) {
+                        int id = actionInputData.get(i).getActionId();
+                        String username = actionInputData.get(i).getUsername();
+                        String message = input.getBestUnseen(username);
+                        arrayResult.add(fileWriter.writeFile(id, null, message));
+                    } else if (actionInputData.get(i).getType().equals("popular")) {
+                        int id = actionInputData.get(i).getActionId();
+                        String username = actionInputData.get(i).getUsername();
+                        String message = input.getMostPopularVideo(username);
+                        arrayResult.add(fileWriter.writeFile(id, null, message));
+                    } else if (actionInputData.get(i).getType().equals("favorite")) {
+                        int id = actionInputData.get(i).getActionId();
+                        String username = actionInputData.get(i).getUsername();
+                        String message = input.getMostFavorite(username);
+                        arrayResult.add(fileWriter.writeFile(id, null, message));
+                    } else if (actionInputData.get(i).getType().equals("search")) {
+                        int id = actionInputData.get(i).getActionId();
+                        String username = actionInputData.get(i).getUsername();
+                        String genre = actionInputData.get(i).getGenre();
+
+                        String message = input.getSearchList(username, genre);
+                        arrayResult.add(fileWriter.writeFile(id, null, message));
+                    }
                 }
             }
         //arrayResult.add(fileWriter.writeFile(2, null, "error"));

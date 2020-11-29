@@ -17,6 +17,7 @@ public final class MovieInputData extends ShowInput {
     private Double rating = 0.0;
     private Integer ratingsNumber = 0;
     private Integer numberOfViews = 0;
+    private  int position = 0;
     public MovieInputData(final String title, final ArrayList<String> cast,
                           final ArrayList<String> genres, final int year,
                           final int duration) {
@@ -67,6 +68,10 @@ public final class MovieInputData extends ShowInput {
             this.rating = 0.0;
         }
     }
+    public void resetRating() {
+        this.rating = 0.0;
+        this.ratingsNumber = 0;
+    }
 
     /**
      * increases the number of views of the movie by viwes
@@ -77,6 +82,9 @@ public final class MovieInputData extends ShowInput {
     public Integer getNumberOfViews() {
         return numberOfViews;
     }
+    public void setNumberOfViews(final Integer views) {
+        this.numberOfViews = 0;
+    }
     public Double getRating() {
         return this.rating;
     }
@@ -85,6 +93,12 @@ public final class MovieInputData extends ShowInput {
     }
     public void setRatingsNumber(final Integer number) {
         this.ratingsNumber = number;
+    }
+    public void setPosition(final int position) {
+        this.position = position;
+    }
+    public int getPosition() {
+        return this.position;
     }
 
 }
