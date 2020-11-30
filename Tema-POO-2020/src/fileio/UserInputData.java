@@ -37,7 +37,10 @@ public final class UserInputData {
      * The ratings for the movies seen and rated
      */
     private Map<String, Double> ratedMovies = new HashMap<String, Double>();
-    private Integer numberofRatings = 0;
+    /**
+     * the number of ratings
+     */
+    private Integer numberOfRatings = 0;
 
     public UserInputData(final String username, final String subscriptionType,
                          final Map<String, Integer> history,
@@ -85,7 +88,9 @@ public final class UserInputData {
     }
 
     /**
-     * Adds a movie to favorites
+     * adds a movie to favorite list
+     * @param movie is the movie to be added to favorite list
+     * @return the result for favorite command
      */
     public String addFavorite(final String movie) {
         String res = new String("");
@@ -116,9 +121,10 @@ public final class UserInputData {
     }
 
     /**
-     * Marks a video as viewd
-     * If video was already viewd, the number of views is incremented
-     * */
+     * adds a video to history
+     * @param title is the title of the show viewed
+     * @return the result for view command
+     */
     public String viewShow(final String title) {
         String message = new String("");
         if (this.history.get(title) == null) {
@@ -138,8 +144,13 @@ public final class UserInputData {
     }
 
     /**
-     * Rates a movie or a serial that hase been viwed
-     * */
+     * Rates a movie or a serial that hase been viewed
+     * @param title is the title of the video
+     * @param seasonNumber is the number of the season of the video if the video is a serial (is 0
+     * for movies)
+     * @param rating is the rating of the video
+     * @return the result for rating command
+     */
     public String addRating(final String title, final int seasonNumber, final Double rating) {
         String message = new String("");
         if (history.get(title) != null) {
@@ -182,7 +193,7 @@ public final class UserInputData {
     }
 
     /**
-     * Calcultes the number of ratings that a user has given to movies and serials
+     * Calculates the number of ratings that a user has given to movies and serials
      */
     public void setNumberofRatings() {
         Integer number = 0;
@@ -191,12 +202,12 @@ public final class UserInputData {
         for (String key : keys) {
             number += this.ratedSerials.get(key).size();
         }
-        this.numberofRatings = number;
+        this.numberOfRatings = number;
 
     }
 
     public Integer getNumberOfRatings() {
-        return this.numberofRatings;
+        return this.numberOfRatings;
     }
 }
 class RatingsAscendingSortUser implements Comparator<UserInputData> {
@@ -215,16 +226,5 @@ class RatingsAscendingSortUser implements Comparator<UserInputData> {
         }
     }
 }
-class RatingsDescendingSortUser implements Comparator<UserInputData> {
 
-    public int compare(final UserInputData user1, final UserInputData user2) {
-        if (user1.getNumberOfRatings() < user2.getNumberOfRatings()) {
-            return 1;
-        } else if (user1.getNumberOfRatings() > user2.getNumberOfRatings()) {
-            return -1;
-        } else {
-            return user1.getUsername().compareTo(user2.getUsername());
-        }
-    }
-}
 

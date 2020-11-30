@@ -32,14 +32,18 @@ public final class ActorInputData {
      */
     private Map<ActorsAwards, Integer> awards;
     /**
-     * avrage rating of movies ans serials
+     * at first, average rating holds the sum of the ratings of movies and serials in which the
+     * actor has played
+     * after setAverageRating is applied, the average rating holds the average rating for an actor
      */
     private Double averageRating = 0.0;
     /**
      * total number of ratings
      */
     private int ratingsNumber = 0;
-
+    /**
+     * total number of awards
+     */
     private Integer awardsNumber = 0;
 
     public ActorInputData(final String name, final String careerDescription,
@@ -94,82 +98,59 @@ public final class ActorInputData {
         this.ratingsNumber = ratingsNumber;
     }
 
-    public int getRatingsNumber() {
-        return  this.ratingsNumber;
-    }
-
     /**
-     * adds a rating of a video
+     * adds a rating to an actor
+     * @param rating is the rating to be added
      */
     public void addRating(final Double rating) {
-        System.out.println("ADD RATING: "+ this.getName()+" "+  this.getAverageRating());
-        /*int ratings = this.getRatingsNumber();
-        ratings++;
-        this.setRatingsNumber(ratings);*/
        this.ratingsNumber++;
        this.averageRating += rating;
     }
     /**
-     * sets the avrage rating of an actor after adding all ratings for videos
+     * calculates the average rating of an actor after adding all ratings for videos
      */
     public void setAverageRating() {
-        System.out.println(this.getName()+" "+ this.getRatingsNumber()+ " "+ this.getAverageRating());
-        /*if (this.getRatingsNumber() > 0) {
-            this.averageRating = this.getAverageRating() / this.getRatingsNumber();
-        } else {
-            this.averageRating = 0.0;
-        }*/
-        if(this.ratingsNumber > 0) {
+        if (this.ratingsNumber > 0) {
             this.averageRating = this.averageRating / this.ratingsNumber;
         } else {
             this.averageRating = 0.0;
         }
     }
-    public void setRating(Double rating) {this.averageRating = rating;}
-
+    public void setRating(final Double rating) {
+        this.averageRating = rating;
+    }
 
     public Double getAverageRating() {
         return averageRating;
     }
     /**
-     * calcultes the awards number for an actor
+     * calculates the awards number for an actor
      */
     public void calculateAwardsNumber() {
-        /*for (int i = 0; i < awardsList.size(); i++) {
-            if (ActorsAwards.valueOf(awardsList.get(i)) != null) {
-                Integer number = awards.get(ActorsAwards.valueOf(awardsList.get(i)));
-                awardsNumber += number;
-            }
-        }*/
-       Set<ActorsAwards> keys= awards.keySet();
+       Set<ActorsAwards> keys = awards.keySet();
         this.awardsNumber = 0;
-        for(ActorsAwards key : keys) {
+        for (ActorsAwards key : keys) {
             this.awardsNumber += awards.get(key);
         }
-        //this.awardsNumber = awards.size();
     }
 
     public Integer getAwardsNumber() {
         return awardsNumber;
     }
     /**
-     * returns true if all strings from words are in actor's career description
+     * @param words is the list of words that need to be searched for
+     * @return true if the all words are found in the actor's career description; otherwise false is
+     * returned
      */
     public Boolean hasKeywords(final List<String> words) {
         HashMap<String, Integer> map = new HashMap<String, Integer>();
         String[] listOfWords = getCareerDescription().split("\\W");
-        for(int i = 0; i < listOfWords.length; i++) {
-
-            if(map.get(listOfWords[i].toLowerCase()) == null) {
+        for (int i = 0; i < listOfWords.length; i++) {
+            if (map.get(listOfWords[i].toLowerCase()) == null) {
                 map.put(listOfWords[i].toLowerCase(), 1);
             }
         }
-       /*for (int i = 0; i < words.size(); i++) {
-            String lowerCaseWord = words.get(i).toLowerCase();
-            if (!this.getCareerDescription().toLowerCase().contains(lowerCaseWord)) {
-                return false;
-            }
-        }*/
+
         for (int i = 0; i < words.size(); i++) {
             String lowerCaseWord = words.get(i).toLowerCase();
             if (map.get(lowerCaseWord) == null) {
@@ -178,7 +159,6 @@ public final class ActorInputData {
         }
         return true;
     }
-
 }
 
 class AverageAscendingSortActor implements Comparator<ActorInputData> {
@@ -197,38 +177,7 @@ class AverageAscendingSortActor implements Comparator<ActorInputData> {
         }
     }
 }
-class AverageDescendingSortActor implements Comparator<ActorInputData> {
 
-    public int compare(final ActorInputData actor1, final ActorInputData actor2) {
-        if (actor1.getAverageRating() < actor2.getAverageRating()) {
-            return 1;
-        } else if (actor1.getAverageRating() > actor2.getAverageRating()) {
-            return -1;
-        } else {
-            if (actor1.getName().compareTo(actor2.getName()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-    }
-}
-class AwardsDescendingSort implements Comparator<ActorInputData> {
-
-    public int compare(final ActorInputData actor1, final ActorInputData actor2) {
-        if (actor1.getAwardsNumber() < actor2.getAwardsNumber()) {
-            return 1;
-        } else if (actor1.getAwardsNumber() > actor2.getAwardsNumber()) {
-            return -1;
-        } else {
-            if (actor1.getName().compareTo(actor2.getName()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-    }
-}
 class AwardsAscendingSort implements Comparator<ActorInputData> {
 
     public int compare(final ActorInputData actor1, final ActorInputData actor2) {

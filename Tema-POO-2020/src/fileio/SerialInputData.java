@@ -21,11 +21,26 @@ public final class SerialInputData extends ShowInput {
      * Season list
      */
     private final ArrayList<Season> seasons;
+    /**
+     * how many times has been the movie added to a user's favourite list
+     */
     private int favorite = 0;
+    /**
+     * stores the average rating for the serial
+     */
     private  Double rating = 0.0;
+    /**
+     * stores the number of ratings and the ratings for each season
+     */
     private HashMap<Integer, HashMap<Integer, Double>> ratingsOfSeasons;
     private int totalDuration = 0;
+    /**
+     * the number of views
+     */
     private Integer numberOfViews = 0;
+    /**
+     * the position in database
+     */
     private  int position = 0;
     public SerialInputData(final String title, final ArrayList<String> cast,
                            final ArrayList<String> genres,
@@ -53,6 +68,8 @@ public final class SerialInputData extends ShowInput {
 
     /**
      * adds a rating to a season
+     * @param season is the season that has been rated
+     * @param rate is the rating
      */
     public void addRating(final Integer season, final Double rate) {
         HashMap<Integer, Double> map = this.ratingsOfSeasons.get(season);
@@ -69,12 +86,11 @@ public final class SerialInputData extends ShowInput {
     }
 
     /**
-     * calculates the rating for the serial
+     * calculates the average rating for the serial
      */
     public void setRating() {
         Double averageRate = 0.0;
         Integer num = 0;
-        //nu stiu sigur daca e bine => posibile probleme cu calculele
         for (int i = 1; i <= numberOfSeasons; i++) {
             HashMap<Integer, Double> seasonRate = this.ratingsOfSeasons.get(i);
             Set<Integer> key = seasonRate.keySet();
@@ -131,7 +147,8 @@ public final class SerialInputData extends ShowInput {
     }
 
     /**
-     * Inreases the number of views by viwes
+     * Increases the number of views
+     * @param views is the number of views that need to be added
      */
     public void addNumberOfViews(final Integer views) {
         this.numberOfViews += views;
@@ -145,9 +162,12 @@ public final class SerialInputData extends ShowInput {
     public int getPosition() {
         return this.position;
     }
+
+    /**
+     * resets the rating
+     */
     public void resetRating() {
         this.rating = 0.0;
-        //this.number = 0;
         for (int i = 1; i <= numberOfSeasons; i++) {
             HashMap<Integer, Double> rate = new HashMap<Integer, Double>();
             rate.put(0, 0.0);
@@ -181,8 +201,9 @@ class FavoriteAscendingSortSerial implements Comparator<SerialInputData> {
         }
     }
 }
-class RatingAscendingSortserial implements Comparator<SerialInputData> {
 
+class RatingAscendingSortSerial implements Comparator<SerialInputData> {
+    @Override
     public int compare(final SerialInputData serial1, final SerialInputData serial2) {
         if (serial1.getRating() < serial2.getRating()) {
             return -1;
@@ -197,8 +218,9 @@ class RatingAscendingSortserial implements Comparator<SerialInputData> {
         }
     }
 }
+
 class RatingDescendingSortSerial implements Comparator<SerialInputData> {
-
+    @Override
     public int compare(final SerialInputData serial1, final SerialInputData serial2) {
         if (serial1.getRating() < serial2.getRating()) {
             return 1;
@@ -213,8 +235,9 @@ class RatingDescendingSortSerial implements Comparator<SerialInputData> {
         }
     }
 }
+
 class DurationAscendingSortserial implements Comparator<SerialInputData> {
-
+    @Override
     public int compare(final SerialInputData serial1, final SerialInputData serial2) {
         if (serial1.getTotalDuration() < serial2.getTotalDuration()) {
             return -1;
@@ -229,8 +252,9 @@ class DurationAscendingSortserial implements Comparator<SerialInputData> {
         }
     }
 }
+
 class DurationDescendingSortserial implements Comparator<SerialInputData> {
-
+    @Override
     public int compare(final SerialInputData serial1, final SerialInputData serial2) {
         if (serial1.getTotalDuration() < serial2.getTotalDuration()) {
             return 1;
@@ -245,8 +269,9 @@ class DurationDescendingSortserial implements Comparator<SerialInputData> {
         }
     }
 }
+
 class ViewAscendingSortserial implements Comparator<SerialInputData> {
-
+    @Override
     public int compare(final SerialInputData serial1, final SerialInputData serial2) {
         if (serial1.getNumberOfViews() < serial2.getNumberOfViews()) {
             return -1;
@@ -261,19 +286,4 @@ class ViewAscendingSortserial implements Comparator<SerialInputData> {
         }
     }
 }
-class ViewDescendingSortserial implements Comparator<SerialInputData> {
 
-    public int compare(final SerialInputData serial1, final SerialInputData serial2) {
-        if (serial1.getNumberOfViews() < serial2.getNumberOfViews()) {
-            return 1;
-        } else if (serial1.getNumberOfViews() > serial2.getNumberOfViews()) {
-            return -1;
-        } else {
-            if (serial1.getTitle().compareTo(serial2.getTitle()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-    }
-}

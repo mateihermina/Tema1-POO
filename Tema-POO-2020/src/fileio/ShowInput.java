@@ -69,13 +69,14 @@ public abstract class ShowInput {
     public abstract int getPosition();
 
     /**
-     * gets the number of viwes for a video
+     * gets the number of views for a video
      */
     public abstract Integer getNumberOfViews();
 
 }
-class RatingDescendingSort implements Comparator<ShowInput> {
 
+class RatingDescendingSort implements Comparator<ShowInput> {
+    @Override
     public int compare(final ShowInput video1, final ShowInput video2) {
         if (video1.getRating() < video2.getRating()) {
             return 1;
@@ -90,8 +91,9 @@ class RatingDescendingSort implements Comparator<ShowInput> {
         }
     }
 }
-class RatingAscendingSort implements Comparator<ShowInput> {
 
+class RatingAscendingSort implements Comparator<ShowInput> {
+    @Override
     public int compare(final ShowInput video1, final ShowInput video2) {
         if (video1.getRating() < video2.getRating()) {
             return -1;
@@ -102,8 +104,9 @@ class RatingAscendingSort implements Comparator<ShowInput> {
         }
     }
 }
-class FavoriteDescendingSort implements Comparator<ShowInput> {
 
+class FavoriteDescendingSort implements Comparator<ShowInput> {
+    @Override
     public int compare(final ShowInput video1, final ShowInput video2) {
         if (video1.getFavorite() < video2.getFavorite()) {
             return 1;
