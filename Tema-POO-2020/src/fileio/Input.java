@@ -37,14 +37,6 @@ public final class Input {
      */
     private final List<SerialInputData> serialsData;
 
-    public Input() {
-        this.actorsData = null;
-        this.usersData = null;
-        this.commandsData = null;
-        this.moviesData = null;
-        this.serialsData = null;
-    }
-
     public Input(final List<ActorInputData> actors, final List<UserInputData> users,
                  final List<ActionInputData> commands,
                  final List<MovieInputData> movies,
@@ -81,15 +73,19 @@ public final class Input {
      * @return an output message for an input action
      */
     public String getMessage(final ActionInputData action) {
-        String message = new String("");
-        if (action.getActionType().equals("command")) {
-            message += applyCommand(action);
-
-        } else if (action.getActionType().equals("query")) {
-            message += applyQuery(action);
-
-        } else if (action.getActionType().equals("recommendation")) {
-            message += applyRecommendation(action);
+        String message = "";
+        switch (action.getActionType()) {
+            case "command":
+                message += applyCommand(action);
+                break;
+            case "query":
+                message += applyQuery(action);
+                break;
+            case "recommendation":
+                message += applyRecommendation(action);
+                break;
+            default:
+                break;
         }
 
         return  message;
@@ -101,20 +97,20 @@ public final class Input {
      * @return a particular message for each command
      */
     public String applyCommand(final ActionInputData action) {
-        String message = new String("");
+        String message = "";
         String username = action.getUsername();
         String title = action.getTitle();
         if (action.getType().equals("favorite")) {
-            for (int j = 0; j < usersData.size(); j++) {
-                if (usersData.get(j).getUsername().equals(username)) {
-                    message += usersData.get(j).addFavorite(title);
+            for (UserInputData user : usersData) {
+                if (user.getUsername().equals(username)) {
+                    message += user.addFavorite(title);
                     break;
                 }
             }
         } else if (action.getType().equals("view")) {
-            for (int j = 0; j < usersData.size(); j++) {
-                if (usersData.get(j).getUsername().equals(username)) {
-                    message += usersData.get(j).viewShow(title);
+            for (UserInputData user : usersData) {
+                if (user.getUsername().equals(username)) {
+                    message += user.viewShow(title);
                     break;
                 }
             }
@@ -122,9 +118,9 @@ public final class Input {
             Double grade = action.getGrade();
             int season = action.getSeasonNumber();
 
-            for (int j = 0; j < usersData.size(); j++) {
-                if (usersData.get(j).getUsername().equals(username)) {
-                    message += usersData.get(j).addRating(title, season, grade);
+            for (UserInputData user : usersData) {
+                if (user.getUsername().equals(username)) {
+                    message += user.addRating(title, season, grade);
                     break;
                 }
             }
@@ -139,71 +135,89 @@ public final class Input {
      * @return a particular message for each query
      */
     public String applyQuery(final ActionInputData action) {
-        String message = new String("");
+        String message = "";
         int number = action.getNumber();
         String sortType = action.getSortType();
-        if (action.getObjectType().equals("actors")) {
-            if (action.getCriteria().equals("average")) {
-                message += sortBestActors(number, sortType);
-            } else if (action.getCriteria().equals("awards")) {
-                List<List<String>> filters = action.getFilters();
-                List<String> awards = filters.get(filters.size() - 1);
-                message += actorsByAwards(awards, sortType);
-            } else if (action.getCriteria().equals("filter_description")) {
-                List<List<String>> filters = action.getFilters();
-                List<String> words = filters.get(filters.size() - 2);
-                message += actorsbyKeywords(words, sortType);
-            }
-        } else if (action.getObjectType().equals("movies")) {
-            if (action.getCriteria().equals("ratings")) {
-                List<List<String>> filters = action.getFilters();
-                String year = filters.get(0).get(0);
-                List<String> genres = filters.get(1);
-                message += bestRatedMovies(year, genres, sortType, number);
-            } else if (action.getCriteria().equals("favorite")) {
-                List<List<String>> filters = action.getFilters();
-                String year = filters.get(0).get(0);
-                List<String> genres = filters.get(1);
-                message += mostFavoriteMovies(year, genres, sortType, number);
-            } else if (action.getCriteria().equals("longest")) {
-                List<List<String>> filters = action.getFilters();
-                String year = filters.get(0).get(0);
-                List<String> genres = filters.get(1);
-                message += longestMovies(year, genres, sortType, number);
-            } else if (action.getCriteria().equals("most_viewed")) {
-                List<List<String>> filters = action.getFilters();
-                String year = filters.get(0).get(0);
-                List<String> genres = filters.get(1);
-                message += mostViewdMovies(year, genres, sortType, number);
-            }
-        } else if (action.getObjectType().equals("shows")) {
-            if (action.getCriteria().equals("ratings")) {
-                List<List<String>> filters = action.getFilters();
-                String year = filters.get(0).get(0);
-                List<String> genres = filters.get(1);
-                message += bestRatedShow(year, genres, sortType, number);
-            } else if (action.getCriteria().equals("favorite")) {
-                int id = action.getActionId();
-                List<List<String>> filters = action.getFilters();
-                String year = filters.get(0).get(0);
-                List<String> genres = filters.get(1);
-                markFavoriteShows();
-                message = mostFavoriteShow(year, genres, sortType, number);
-            } else if (action.getCriteria().equals("longest")) {
-                List<List<String>> filters = action.getFilters();
-                String year = filters.get(0).get(0);
-                List<String> genres = filters.get(1);
-                message += longestShow(year, genres, sortType, number);
-            } else if (action.getCriteria().equals("most_viewed")) {
-                List<List<String>> filters = action.getFilters();
-                String year = filters.get(0).get(0);
-                List<String> genres = filters.get(1);
-                message += mostViewdShows(year, genres, sortType, number);
-            }
-        } else if (action.getObjectType().equals("users")) {
-            if (action.getCriteria().equals("num_ratings")) {
-                message += mostActiveUsers(number, sortType);
-            }
+        List<List<String>> filters = action.getFilters();
+        String year;
+        switch (action.getObjectType()) {
+            case "actors":
+                switch (action.getCriteria()) {
+                    case "average":
+                        message += sortBestActors(number, sortType);
+                        break;
+                    case "awards":
+                        List<String> awards = filters.get(filters.size() - 1);
+                        message += actorsByAwards(awards, sortType);
+                        break;
+                    case "filter_description":
+                        List<String> words = filters.get(filters.size() - 2);
+                        message += actorsByKeywords(words, sortType);
+                        break;
+                    default:
+                        break;
+                }
+            case "movies":
+                switch (action.getCriteria()) {
+
+                    case "ratings":
+                        year = filters.get(0).get(0);
+                        List<String> genres = filters.get(1);
+                        message += bestRatedMovies(year, genres, sortType, number);
+                        break;
+                    case "favorite":
+                        year = filters.get(0).get(0);
+                        genres = filters.get(1);
+                        message += mostFavoriteMovies(year, genres, sortType, number);
+                        break;
+                    case "longest":
+                        year = filters.get(0).get(0);
+                        genres = filters.get(1);
+                        message += longestMovies(year, genres, sortType, number);
+                        break;
+                    case "most_viewed":
+                        year = filters.get(0).get(0);
+                        genres = filters.get(1);
+                        message += mostViewedMovies(year, genres, sortType, number);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "shows":
+                switch (action.getCriteria()) {
+                    case "ratings":
+                        year = filters.get(0).get(0);
+                        List<String> genres = filters.get(1);
+                        message += bestRatedShow(year, genres, sortType, number);
+                        break;
+                    case "favorite":
+                        year = filters.get(0).get(0);
+                        genres = filters.get(1);
+                        markFavoriteShows();
+                        message = mostFavoriteShow(year, genres, sortType, number);
+                        break;
+                    case "longest":
+                        year = filters.get(0).get(0);
+                        genres = filters.get(1);
+                        message += longestShow(year, genres, sortType, number);
+                        break;
+                    case "most_viewed":
+                        year = filters.get(0).get(0);
+                        genres = filters.get(1);
+                        message += mostViewedShows(year, genres, sortType, number);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "users":
+                if (action.getCriteria().equals("num_ratings")) {
+                    message += mostActiveUsers(number, sortType);
+                }
+                break;
+            default:
+                break;
         }
 
         return message;
@@ -215,21 +229,27 @@ public final class Input {
      * @return a particular message for each recommendation
      */
     public String applyRecommendation(final ActionInputData action) {
-        String message = new String("");
+        String message = "";
         String username = action.getUsername();
-        if (action.getType().equals("standard")) {
-            message += getStandardRecommendation(username);
-
-        } else if (action.getType().equals("best_unseen")) {
-            message += getBestUnseen(username);
-
-        } else if (action.getType().equals("popular")) {
-            message += getMostPopularVideo(username);
-        } else if (action.getType().equals("favorite")) {
-            message += getMostFavorite(username);
-        } else if (action.getType().equals("search")) {
-            String genre = action.getGenre();
-            message += getSearchList(username, genre);
+        switch (action.getType()) {
+            case "standard":
+                message += getStandardRecommendation(username);
+                break;
+            case "best_unseen":
+                message += getBestUnseen(username);
+                break;
+            case "popular":
+                message += getMostPopularVideo(username);
+                break;
+            case "favorite":
+                message += getMostFavorite(username);
+                break;
+            case "search":
+                String genre = action.getGenre();
+                message += getSearchList(username, genre);
+                break;
+            default:
+                break;
         }
 
         return message;
@@ -242,12 +262,13 @@ public final class Input {
      */
     public int getSeasonsNumber(final String title) {
         int seasonsNumber = 0;
-        for (int t = 0; t < serialsData.size(); t++) {
-            if (serialsData.get(t).getTitle().equals(title)) {
-                seasonsNumber = serialsData.get(t).getNumberSeason();
+        for (SerialInputData serial : serialsData) {
+            if (serial.getTitle().equals(title)) {
+                seasonsNumber = serial.getNumberSeason();
                 break;
             }
         }
+
         return seasonsNumber;
     }
 
@@ -255,18 +276,18 @@ public final class Input {
      * calculates for how many times a show has been added to a user's favourite list
      */
     public void markFavoriteShows() {
-        for (int i = 0; i < usersData.size(); i++) {
-            for (int j = 0; j < usersData.get(i).getFavoriteMovies().size(); j++) {
-                String title = usersData.get(i).getFavoriteMovies().get(j);
-                for (int k = 0; k < moviesData.size(); k++) {
-                    if (moviesData.get(k).getTitle().equals(title)) {
-                        moviesData.get(k).markFavorite();
+        for (UserInputData user : usersData) {
+            for (int j = 0; j < user.getFavoriteMovies().size(); j++) {
+                String title = user.getFavoriteMovies().get(j);
+                for (MovieInputData movie : moviesData) {
+                    if (movie.getTitle().equals(title)) {
+                        movie.markFavorite();
                         break;
                     }
                 }
-                for (int k = 0; k < serialsData.size(); k++) {
-                    if (serialsData.get(k).getTitle().equals(title)) {
-                        serialsData.get(k).markFavorite();
+                for (SerialInputData serial : serialsData) {
+                    if (serial.getTitle().equals(title)) {
+                        serial.markFavorite();
                         break;
                     }
                 }
@@ -278,9 +299,8 @@ public final class Input {
      * resets the rating for each actor
      */
     public void resetActorRating() {
-        for (int i = 0; i < actorsData.size(); i++) {
-            actorsData.get(i).setRating(0.0);
-            actorsData.get(i).setRatingsNumber(0);
+        for (ActorInputData actor : actorsData) {
+            actor.resetRating();
         }
     }
 
@@ -288,28 +308,26 @@ public final class Input {
      * sorts actors by their average rating
      * @param number is the number of actors required
      * @param sortType is the sorting order required
-     * @return the result for favorite average actors query
+     * @return the result for average actors query
      */
     public String sortBestActors(final int number, final String sortType) {
-        /**
-         * for each actor, I calculate the rating as the average of the ratings of their films from
-         * filmography
+        /*
+         for each actor, I calculate the rating as the average of the ratings of their films from
+         filmography
          */
         resetActorRating();
-        ArrayList<ActorInputData> actors = new ArrayList<ActorInputData>();
-        ArrayList<ActorInputData> actorsInputData = new ArrayList<ActorInputData>(actorsData);
-        for (int i = 0; i < actorsInputData.size(); i++) {
-            ActorInputData actor = actorsInputData.get(i);
-            /**
-             * I calculate the average rating for each film from filmography, then I calculate the
-             * average rating for the actor
+        ArrayList<ActorInputData> actors = new ArrayList<>();
+        ArrayList<ActorInputData> actorsInputData = new ArrayList<>(actorsData);
+        for (ActorInputData actor : actorsInputData) {
+            /*
+             I calculate the average rating for each film from filmography, then I calculate the
+             average rating for the actor
              */
             for (int j = 0; j < actor.getFilmography().size(); j++) {
                 String title = actor.getFilmography().get(j);
                 Integer numberOfRatings = 0;
                 Double rate = 0.0;
-                for (int k = 0; k < usersData.size(); k++) {
-                    UserInputData user = usersData.get(k);
+                for (UserInputData user : usersData) {
                     if (user.getRatedMovies().get(title) != null) {
                         rate += user.getRatedMovies().get(title);
                         numberOfRatings++;
@@ -338,16 +356,16 @@ public final class Input {
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(actors, new AverageAscendingSortActor());
+            actors.sort(new AverageAscendingSortActor());
         } else {
-            Collections.sort(actors, new AverageAscendingSortActor().reversed());
+            actors.sort(new AverageAscendingSortActor().reversed());
         }
 
-        ArrayList<String> actorNames = new ArrayList<String>();
+        ArrayList<String> actorNames = new ArrayList<>();
         int count = 0;
-        for (int i = 0; i < actors.size(); i++) {
-            if (actors.get(i).getAverageRating() > 0) {
-                actorNames.add(actors.get(i).getName());
+        for (ActorInputData actor : actors) {
+            if (actor.getAverageRating() > 0) {
+                actorNames.add(actor.getName());
                 count += 1;
                 if (count == number) {
                     break;
@@ -356,8 +374,30 @@ public final class Input {
 
         }
 
-        String message = "Query result: " + actorNames.toString();
-        return message;
+        return "Query result: " + actorNames.toString();
+    }
+
+    /**
+     * @param year is the year required
+     * @param genres is an array with the genres required
+     * @return a list of movies that have the specified filters
+     */
+    private ArrayList<MovieInputData> moviesByFilters(final String year,
+                                                      final List<String> genres) {
+        ArrayList<MovieInputData> movies = new ArrayList<>();
+        for (MovieInputData moviesDatum : moviesData) {
+            int yearNumber = moviesDatum.getYear();
+            if (Integer.toString(yearNumber).equals(year) || year == null) {
+                List<String> intersectElements = moviesDatum.getGenres().stream()
+                        .filter(genres::contains).sorted().collect(Collectors.toList());
+                Collections.sort(genres);
+                Collections.sort(intersectElements);
+                if (genres.equals(intersectElements) || genres.get(0) == null) {
+                    movies.add(moviesDatum);
+                }
+            }
+        }
+        return movies;
     }
 
     /**
@@ -371,51 +411,19 @@ public final class Input {
     public String mostFavoriteMovies(final String year, final List<String> genres,
                                      final String sortType, final int number) {
         markFavoriteShows();
-        Boolean found = false;
-        ArrayList<MovieInputData> movies = new ArrayList<MovieInputData>();
-        for (int i = 0; i < moviesData.size(); i++) {
-            Integer yearNumber = new Integer(moviesData.get(i).getYear());
-            if (year != null) {
-                if (yearNumber.toString().equals(year)) {
-                    if (genres.get(0) != null) {
-                        List<String> intersectElements = moviesData.get(i).getGenres().stream()
-                                .filter(genres::contains)
-                                .collect(Collectors.toList());
-                        Collections.sort(intersectElements);
-                        Collections.sort(genres);
-                        if (genres.equals(intersectElements)) {
-                            movies.add(moviesData.get(i));
-                        }
-                    }  else {
-                        movies.add(moviesData.get(i));
-                    }
-                }
-            } else {
-                if (genres.get(0) != null) {
-                    List<String> intersectElements = moviesData.get(i).getGenres().stream()
-                            .filter(genres::contains)
-                            .collect(Collectors.toList());
-                    Collections.sort(intersectElements);
-                    Collections.sort(genres);
-                    if (genres.equals(intersectElements)) {
-                        movies.add(moviesData.get(i));
-                    }
-                }  else {
-                    movies.add(moviesData.get(i));
-                }
-            }
-        }
+        ArrayList<MovieInputData> movies = moviesByFilters(year, genres);
+
         if (sortType.equals("asc")) {
-            Collections.sort(movies, new FavoriteAscendingSortMovie());
+            movies.sort(new FavoriteAscendingSortMovie());
         } else {
-            Collections.sort(movies, new FavoriteAscendingSortMovie().reversed());
+            movies.sort(new FavoriteAscendingSortMovie().reversed());
         }
 
-        ArrayList<String> moviesResult = new ArrayList<String>();
+        ArrayList<String> moviesResult = new ArrayList<>();
         int count = 0;
-        for (int i = 0; i < movies.size(); i++) {
-            if (movies.get(i).getFavorite() > 0) {
-                moviesResult.add(movies.get(i).getTitle());
+        for (MovieInputData movie : movies) {
+            if (movie.getFavorite() > 0) {
+                moviesResult.add(movie.getTitle());
                 count += 1;
                 if (count == number) {
                     break;
@@ -423,9 +431,7 @@ public final class Input {
             }
         }
 
-        String message = "Query result: " + moviesResult.toString();
-        return message;
-
+        return "Query result: " + moviesResult.toString();
     }
 
     /**
@@ -438,52 +444,31 @@ public final class Input {
      */
     public String mostFavoriteShow(final String year, final List<String> genres,
                                    final String sortType, final int number) {
-        ArrayList<SerialInputData> serials = new ArrayList<SerialInputData>();
-        for (int i = 0; i < serialsData.size(); i++) {
-            if (year != null) {
-                Integer yearNumber = new Integer(serialsData.get(i).getYear());
-                if (yearNumber.toString().equals(year)) {
-                    if (genres.get(0) != null) {
-                        List<String> intersectElements = serialsData.get(i).getGenres().stream()
-                                .filter(genres::contains)
-                                .collect(Collectors.toList());
-                        Collections.sort(intersectElements);
-                        Collections.sort(genres);
-                        if (genres.equals(intersectElements)) {
-                            serials.add(serialsData.get(i));
-                        }
-                    } else {
-                        serials.add(serialsData.get(i));
-                    }
-                }
-            } else {
-                if (genres.get(0) != null) {
-                    List<String> intersectElements = serialsData.get(i).getGenres().stream()
-                            .filter(genres::contains)
-                            .collect(Collectors.toList());
-                    Collections.sort(intersectElements);
-                    Collections.sort(genres);
-                    if (genres.equals(intersectElements)) {
-                        serials.add(serialsData.get(i));
-                    }
-                } else {
-                    serials.add(serialsData.get(i));
-                }
+        ArrayList<SerialInputData> serials = new ArrayList<>();
+        for (SerialInputData serialsDatum : serialsData) {
+            int yearNumber = serialsDatum.getYear();
+            if (Integer.toString(yearNumber).equals(year) || year == null) {
+                List<String> intersectElements = serialsDatum.getGenres().stream()
+                        .filter(genres::contains).sorted().collect(Collectors.toList());
+                Collections.sort(genres);
 
+                if (genres.equals(intersectElements) || genres.get(0) == null) {
+                    serials.add(serialsDatum);
+                }
             }
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(serials, new FavoriteAscendingSortSerial());
+            serials.sort(new FavoriteAscendingSortSerial());
         } else {
-            Collections.sort(serials, new FavoriteDescendingSortSerial());
+            serials.sort(new FavoriteDescendingSortSerial());
         }
 
-        ArrayList<String> serialsReSult = new ArrayList<String>();
+        ArrayList<String> serialsResult = new ArrayList<>();
         int count = 0;
-        for (int i = 0; i < serials.size(); i++) {
-            if (serials.get(i).getFavorite() > 0) {
-                serialsReSult.add(serials.get(i).getTitle());
+        for (SerialInputData serial : serials) {
+            if (serial.getFavorite() > 0) {
+                serialsResult.add(serial.getTitle());
                 count += 1;
                 if (count == number) {
                     break;
@@ -491,8 +476,7 @@ public final class Input {
             }
         }
 
-        String message = "Query result: " + serialsReSult.toString();
-        return message;
+        return "Query result: " + serialsResult.toString();
     }
 
     /**
@@ -502,39 +486,40 @@ public final class Input {
      * @return the result for actor awards query
      */
     public String actorsByAwards(final List<String> awards, final String sortType) {
-        ArrayList<ActorInputData> actors = new ArrayList<ActorInputData>();
-        for (int i = 0; i < actorsData.size(); i++) {
-            Map<ActorsAwards, Integer> awardsMap = actorsData.get(i).getAwards();
+        ArrayList<ActorInputData> actors = new ArrayList<>();
+        for (ActorInputData actorsDatum : actorsData) {
+            Map<ActorsAwards, Integer> awardsMap = actorsDatum.getAwards();
             Set<ActorsAwards> keys = awardsMap.keySet();
-            List<String> actorAwards = new ArrayList<String>();
+            List<String> actorAwards = new ArrayList<>();
             for (ActorsAwards key : keys) {
                 actorAwards.add(key.toString());
             }
+
             List<String> intersectElements = actorAwards.stream()
                     .filter(awards::contains)
                     .collect(Collectors.toList());
             Collections.sort(awards);
             Collections.sort(intersectElements);
+
             if (intersectElements.equals(awards)) {
-                actorsData.get(i).calculateAwardsNumber();
-                actors.add(actorsData.get(i));
+                actorsDatum.calculateAwardsNumber();
+                actors.add(actorsDatum);
 
             }
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(actors, new AwardsAscendingSort());
+            actors.sort(new AwardsAscendingSort());
         } else {
-            Collections.sort(actors, new AwardsAscendingSort().reversed());
+            actors.sort(new AwardsAscendingSort().reversed());
         }
 
-        ArrayList<String> actorNames = new ArrayList<String>();
-        for (int i = 0; i < actors.size(); i++) {
-            actorNames.add(actors.get(i).getName());
+        ArrayList<String> actorNames = new ArrayList<>();
+        for (ActorInputData actor : actors) {
+            actorNames.add(actor.getName());
         }
 
-        String message = "Query result: " + actorNames.toString();
-        return message;
+        return "Query result: " + actorNames.toString();
     }
 
     /**
@@ -543,31 +528,50 @@ public final class Input {
      * @param sortType is the sorting order required
      * @return the result for actor filter description query
      */
-    public String actorsbyKeywords(final List<String> words, final String sortType) {
-        ArrayList<String> actors = new ArrayList<String>();
-        for (int i = 0; i < actorsData.size(); i++) {
-            if (actorsData.get(i).hasKeywords(words)) {
-                actors.add(actorsData.get(i).getName());
+    public String actorsByKeywords(final List<String> words, final String sortType) {
+        ArrayList<String> actors = new ArrayList<>();
+        for (ActorInputData actorsDatum : actorsData) {
+            if (actorsDatum.hasKeywords(words)) {
+                actors.add(actorsDatum.getName());
             }
         }
 
         if (sortType.equals("asc")) {
             Collections.sort(actors);
         } else {
-            Collections.sort(actors, Collections.reverseOrder());
+            actors.sort(Collections.reverseOrder());
         }
 
-        String message = "Query result: " + actors.toString();
-        return message;
+        return "Query result: " + actors.toString();
     }
 
     /**
      * resets the rating for all movies
      */
     public void resetMovieRating() {
-        for (int i = 0; i < moviesData.size(); i++) {
-            moviesData.get(i).resetRating();
+        for (MovieInputData moviesDatum : moviesData) {
+            moviesDatum.resetRating();
         }
+    }
+
+    /**
+     * @param movies -> movies required
+     * @param number is the number of movie titles required
+     * @return a list of first movie titles from movies
+     */
+    private ArrayList<String> getMovieTitles(final ArrayList<MovieInputData> movies,
+                                             final int number) {
+        ArrayList<String> movieTitles = new ArrayList<>();
+        int count = 0;
+        for (MovieInputData movie : movies) {
+            movieTitles.add(movie.getTitle());
+            count += 1;
+            if (count == number) {
+                break;
+            }
+        }
+
+        return movieTitles;
     }
 
     /**
@@ -581,60 +585,66 @@ public final class Input {
     public String bestRatedMovies(final String year, final List<String> genres,
                                   final String sortType, final int number) {
         resetMovieRating();
-        for (int i = 0; i < moviesData.size(); i++) {
-            Integer yearNumber = new Integer(moviesData.get(i).getYear());
-            if (yearNumber.toString().equals(year)) {
-                List<String> intersectElements = moviesData.get(i).getGenres().stream()
-                        .filter(genres::contains)
-                        .collect(Collectors.toList());
-                if (genres.equals(intersectElements)) {
-                    String title = moviesData.get(i).getTitle();
-                    for (int j = 0; j < usersData.size(); j++) {
-                        Map<String, Double> ratedMovies = usersData.get(j).getRatedMovies();
+        for (MovieInputData moviesDatum : moviesData) {
+            int yearNumber = moviesDatum.getYear();
+
+            if (Integer.toString(yearNumber).equals(year) || year == null) {
+                List<String> intersectElements = moviesDatum.getGenres().stream()
+                        .filter(genres::contains).sorted().collect(Collectors.toList());
+                Collections.sort(genres);
+
+                if (genres.equals(intersectElements) || genres.get(0) == null) {
+                    String title = moviesDatum.getTitle();
+                    for (UserInputData usersDatum : usersData) {
+                        Map<String, Double> ratedMovies = usersDatum.getRatedMovies();
                         if (ratedMovies.get(title) != null) {
                             Double rating = ratedMovies.get(title);
-                            moviesData.get(i).addRating(rating);
+                            moviesDatum.addRating(rating);
                         }
                     }
                 }
             }
         }
 
-        ArrayList<MovieInputData> movies = new ArrayList<MovieInputData>();
-        for (int i = 0; i < moviesData.size(); i++) {
-            moviesData.get(i).setRating();
-            if (moviesData.get(i).getRating() > 0) {
-                movies.add(moviesData.get(i));
+        ArrayList<MovieInputData> movies = new ArrayList<>();
+        for (MovieInputData moviesDatum : moviesData) {
+            moviesDatum.setRating();
+            if (moviesDatum.getRating() > 0) {
+                movies.add(moviesDatum);
             }
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(movies, new RatingAscendingSortMovie());
+            movies.sort(new RatingAscendingSortMovie());
         } else {
-            Collections.sort(movies, new RatingDescendingSortMovie());
+            movies.sort(new RatingDescendingSortMovie());
         }
 
-        ArrayList<String> movieTitles = new ArrayList<String>();
-        int count = 0;
-        for (int i = 0; i < movies.size(); i++) {
-            movieTitles.add(movies.get(i).getTitle());
-            count += 1;
-            if (count == number) {
-                break;
-            }
-        }
-
-        String message = "Query result: " + movieTitles.toString();
-        return message;
+        ArrayList<String> movieTitles = getMovieTitles(movies, number);
+        return "Query result: " + movieTitles.toString();
     }
 
     /**
      * resets the rating for all serials
      */
     public void resetSerialRating() {
-        for (int i = 0; i < serialsData.size(); i++) {
-            serialsData.get(i).resetRating();
+        for (SerialInputData serialsDatum : serialsData) {
+            serialsDatum.resetRating();
         }
+    }
+
+    private ArrayList<String> getSerialTitles(final ArrayList<SerialInputData> serials,
+                                              final int number) {
+        ArrayList<String> serialTitles = new ArrayList<>();
+        int count = 0;
+        for (SerialInputData serial : serials) {
+            serialTitles.add(serial.getTitle());
+            count += 1;
+            if (count == number) {
+                break;
+            }
+        }
+        return  serialTitles;
     }
 
     /**
@@ -648,130 +658,51 @@ public final class Input {
     public String bestRatedShow(final String year, final List<String> genres,
                                 final String sortType, final int number) {
         resetSerialRating();
-        for (int i = 0; i < serialsData.size(); i++) {
-            Integer yearNumber = new Integer(serialsData.get(i).getYear());
-            if (year != null) {
-                if (yearNumber.toString().equals(year)) {
-                    if (genres.get(0) != null) {
-                        List<String> intersectElements = serialsData.get(i).getGenres().stream()
-                                .filter(genres::contains)
-                                .collect(Collectors.toList());
-                        Collections.sort(intersectElements);
-                        Collections.sort(genres);
-                        if (genres.equals(intersectElements)) {
-                            String title = serialsData.get(i).getTitle();
+        for (SerialInputData serialsDatum : serialsData) {
+            int yearNumber = serialsDatum.getYear();
+            if (Integer.toString(yearNumber).equals(year) || year == null) {
+                List<String> intersectElements = serialsDatum.getGenres().stream()
+                        .filter(genres::contains).sorted().collect(Collectors.toList());
+                Collections.sort(genres);
 
-                            for (int j = 0; j < usersData.size(); j++) {
-                                Map<String, HashMap<Integer, Double>> ratedSerials
-                                        = usersData.get(j).getRatedSerials();
+                if (genres.equals(intersectElements) || genres.get(0) == null) {
+                    String title = serialsDatum.getTitle();
 
-                                if (ratedSerials.get(title) != null) {
-                                    HashMap<Integer, Double> seasonsRate = ratedSerials.get(title);
-                                    Set<Integer> keys = seasonsRate.keySet();
-                                    ArrayList<Integer> ratedSeasons = new ArrayList<Integer>(keys);
-
-                                    for (int k = 0; k < ratedSeasons.size(); k++) {
-                                        Double rating = seasonsRate.get(ratedSeasons.get(k));
-                                        serialsData.get(i).addRating(ratedSeasons.get(k), rating);
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        String title = serialsData.get(i).getTitle();
-
-                        for (int j = 0; j < usersData.size(); j++) {
-                            Map<String, HashMap<Integer, Double>> ratedSerials
-                                    = usersData.get(j).getRatedSerials();
-
-                            if (ratedSerials.get(title) != null) {
-                                HashMap<Integer, Double> seasonsRate = ratedSerials.get(title);
-                                Set<Integer> keys = seasonsRate.keySet();
-                                ArrayList<Integer> ratedSeasons = new ArrayList<Integer>(keys);
-
-                                for (int k = 0; k < ratedSeasons.size(); k++) {
-                                    Double rating = seasonsRate.get(ratedSeasons.get(k));
-                                    serialsData.get(i).addRating(ratedSeasons.get(k), rating);
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                if (genres.get(0) != null) {
-                    List<String> intersectElements = serialsData.get(i).getGenres().stream()
-                            .filter(genres::contains)
-                            .collect(Collectors.toList());
-                    Collections.sort(intersectElements);
-                    Collections.sort(genres);
-
-                    if (genres.equals(intersectElements)) {
-                        String title = serialsData.get(i).getTitle();
-                        for (int j = 0; j < usersData.size(); j++) {
-                            Map<String, HashMap<Integer, Double>> ratedSerials
-                                    = usersData.get(j).getRatedSerials();
-
-                            if (ratedSerials.get(title) != null) {
-                                HashMap<Integer, Double> seasonsRate = ratedSerials.get(title);
-                                Set<Integer> keys = seasonsRate.keySet();
-                                ArrayList<Integer> ratedSeasons = new ArrayList<Integer>(keys);
-
-                                for (int k = 0; k < ratedSeasons.size(); k++) {
-                                    Double rating = seasonsRate.get(ratedSeasons.get(k));
-                                    serialsData.get(i).addRating(ratedSeasons.get(k), rating);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    String title = serialsData.get(i).getTitle();
-
-                    for (int j = 0; j < usersData.size(); j++) {
+                    for (UserInputData usersDatum : usersData) {
                         Map<String, HashMap<Integer, Double>> ratedSerials
-                                = usersData.get(j).getRatedSerials();
+                                = usersDatum.getRatedSerials();
 
                         if (ratedSerials.get(title) != null) {
                             HashMap<Integer, Double> seasonsRate = ratedSerials.get(title);
                             Set<Integer> keys = seasonsRate.keySet();
-                            ArrayList<Integer> ratedSeasons = new ArrayList<Integer>(keys);
+                            ArrayList<Integer> ratedSeasons = new ArrayList<>(keys);
 
-                            for (int k = 0; k < ratedSeasons.size(); k++) {
-                                Double rating = seasonsRate.get(ratedSeasons.get(k));
-                                serialsData.get(i).addRating(ratedSeasons.get(k), rating);
+                            for (Integer ratedSeason : ratedSeasons) {
+                                Double rating = seasonsRate.get(ratedSeason);
+                                serialsDatum.addRating(ratedSeason, rating);
                             }
                         }
                     }
                 }
-
             }
         }
 
-        ArrayList<SerialInputData> serials = new ArrayList<SerialInputData>();
-        for (int i = 0; i < serialsData.size(); i++) {
-            serialsData.get(i).setRating();
-            if (serialsData.get(i).getRating() > 0) {
-                serials.add(serialsData.get(i));
+        ArrayList<SerialInputData> serials = new ArrayList<>();
+        for (SerialInputData serialsDatum : serialsData) {
+            serialsDatum.setRating();
+            if (serialsDatum.getRating() > 0) {
+                serials.add(serialsDatum);
             }
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(serials, new RatingAscendingSortSerial());
+            serials.sort(new RatingAscendingSortSerial());
         } else {
-            Collections.sort(serials, new RatingDescendingSortSerial());
+            serials.sort(new RatingDescendingSortSerial());
         }
 
-        ArrayList<String> serialTitles = new ArrayList<String>();
-        int count = 0;
-        for (int i = 0; i < serials.size(); i++) {
-            serialTitles.add(serials.get(i).getTitle());
-            count += 1;
-            if (count == number) {
-                break;
-            }
-        }
-
-        String message = "Query result: " + serialTitles.toString();
-        return message;
+        ArrayList<String> serialTitles = getSerialTitles(serials, number);
+        return "Query result: " + serialTitles.toString();
     }
 
     /**
@@ -784,61 +715,15 @@ public final class Input {
      */
     public String longestMovies(final String year, final List<String> genres,
                                 final String sortType, final int number) {
-        ArrayList<MovieInputData> movies = new ArrayList<MovieInputData>();
-        for (int i = 0; i < moviesData.size(); i++) {
-            if (year != null) {
-                Integer yearNumber = new Integer(moviesData.get(i).getYear());
-                if (yearNumber.toString().equals(year)) {
-                    if (genres.get(0) != null) {
-                        List<String> intersectElements = moviesData.get(i).getGenres().stream()
-                                .filter(genres::contains)
-                                .collect(Collectors.toList());
-                        Collections.sort(intersectElements);
-                        Collections.sort(genres);
-                        if (genres.equals(intersectElements)) {
-                            movies.add(moviesData.get(i));
-                        }
-                    } else {
-                        movies.add(moviesData.get(i));
-                    }
-                }
-            } else {
-                if (genres.get(0) != null) {
-                    List<String> intersectElements = moviesData.get(i).getGenres().stream()
-                            .filter(genres::contains)
-                            .collect(Collectors.toList());
-                    Collections.sort(intersectElements);
-                    Collections.sort(genres);
-                    if (genres.equals(intersectElements)) {
-                        movies.add(moviesData.get(i));
-
-                    }
-                } else {
-                    movies.add(moviesData.get(i));
-                }
-            }
-        }
-
+        ArrayList<MovieInputData> movies = moviesByFilters(year, genres);
         if (sortType.equals("asc")) {
-            Collections.sort(movies, new DurationAscendingSortMovie());
+            movies.sort(new DurationAscendingSortMovie());
         } else {
-            Collections.sort(movies, new DurationAscendingSortMovie().reversed());
+            movies.sort(new DurationAscendingSortMovie().reversed());
         }
 
-        ArrayList<String> movieTitles = new ArrayList<String>();
-        int count = 0;
-        for (int i = 0; i < movies.size(); i++) {
-
-            movieTitles.add(movies.get(i).getTitle());
-            count += 1;
-            if (count == number) {
-                break;
-            }
-
-        }
-
-        String message = "Query result: " + movieTitles.toString();
-        return message;
+        ArrayList<String> movieTitles = getMovieTitles(movies, number);
+        return "Query result: " + movieTitles.toString();
     }
 
     /**
@@ -851,38 +736,28 @@ public final class Input {
      */
     public String longestShow(final String year, final List<String> genres,
                               final String sortType, final int number) {
-        ArrayList<SerialInputData> serials = new ArrayList<SerialInputData>();
-        for (int i = 0; i < serialsData.size(); i++) {
-            Integer yearNumber = new Integer(serialsData.get(i).getYear());
-            if (yearNumber.toString().equals(year)) {
-                List<String> intersectElements = serialsData.get(i).getGenres().stream()
+        ArrayList<SerialInputData> serials = new ArrayList<>();
+        for (SerialInputData serialsDatum : serialsData) {
+            int yearNumber = serialsDatum.getYear();
+            if (Integer.toString(yearNumber).equals(year)) {
+                List<String> intersectElements = serialsDatum.getGenres().stream()
                         .filter(genres::contains)
                         .collect(Collectors.toList());
                 if (genres.equals(intersectElements)) {
-                    serialsData.get(i).setTotalDuration();
-                    serials.add(serialsData.get(i));
+                    serialsDatum.setTotalDuration();
+                    serials.add(serialsDatum);
                 }
             }
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(serials, new DurationAscendingSortserial());
+            serials.sort(new DurationAscendingSortSerial());
         } else {
-            Collections.sort(serials, new DurationDescendingSortserial());
+            serials.sort(new DurationDescendingSortSerial());
         }
 
-        ArrayList<String> serialTitles = new ArrayList<String>();
-        int count = 0;
-        for (int i = 0; i < serials.size(); i++) {
-            serialTitles.add(serials.get(i).getTitle());
-            count += 1;
-            if (count == number) {
-                break;
-            }
-        }
-
-        String message = "Query result: " + serialTitles.toString();
-        return message;
+        ArrayList<String> serialTitles = getSerialTitles(serials, number);
+        return "Query result: " + serialTitles.toString();
     }
     /**
      * search movies by year and genres and sort them by the number of views
@@ -892,104 +767,44 @@ public final class Input {
      * @param number is the number of movies required
      * @return the result for most viewed movie query
      */
-    public String mostViewdMovies(final String year, final List<String> genres,
+    public String mostViewedMovies(final String year, final List<String> genres,
                                 final String sortType, final int number) {
-        ArrayList<MovieInputData> movies = new ArrayList<MovieInputData>();
-        for (int i = 0; i < moviesData.size(); i++) {
-            if (year != null) {
-                Integer yearNumber = new Integer(moviesData.get(i).getYear());
-                if (yearNumber.toString().equals(year)) {
-                    if (genres.get(0) != null) {
-                        List<String> intersectElements = moviesData.get(i).getGenres().stream()
-                                .filter(genres::contains)
-                                .collect(Collectors.toList());
-                        Collections.sort(intersectElements);
-                        Collections.sort(genres);
-                        if (genres.equals(intersectElements)) {
-                            String title = moviesData.get(i).getTitle();
-                            for (int j = 0; j < usersData.size(); j++) {
-                                Map<String, Integer> history = usersData.get(j).getHistory();
-                                if (history != null) {
-                                    if (history.get(title) != null) {
-                                        moviesData.get(i).addNumberOfViews(history.get(title));
-                                    }
-                                }
-                            }
-                            if (moviesData.get(i).getNumberOfViews() > 0) {
-                                movies.add(moviesData.get(i));
-                            }
-                        }
-                    } else {
-                        String title = moviesData.get(i).getTitle();
-                        for (int j = 0; j < usersData.size(); j++) {
-                            Map<String, Integer> history = usersData.get(j).getHistory();
-                            if (history != null) {
-                                if (history.get(title) != null) {
-                                    moviesData.get(i).addNumberOfViews(history.get(title));
-                                }
-                            }
-                        }
-                        if (moviesData.get(i).getNumberOfViews() > 0) {
-                            movies.add(moviesData.get(i));
-                        }
-                    }
-                }
-            } else {
-                if (genres.get(0) != null) {
-                    List<String> intersectElements = moviesData.get(i).getGenres().stream()
-                            .filter(genres::contains)
-                            .collect(Collectors.toList());
-                    Collections.sort(intersectElements);
-                    Collections.sort(genres);
-                    if (genres.equals(intersectElements)) {
-                        String title = moviesData.get(i).getTitle();
-                        for (int j = 0; j < usersData.size(); j++) {
-                            Map<String, Integer> history = usersData.get(j).getHistory();
-                            if (history != null) {
-                                if (history.get(title) != null) {
-                                    moviesData.get(i).addNumberOfViews(history.get(title));
-                                }
-                            }
-                        }
-                        if (moviesData.get(i).getNumberOfViews() > 0) {
-                            movies.add(moviesData.get(i));
-                        }
-                    }
-                } else {
-                    String title = moviesData.get(i).getTitle();
-                    for (int j = 0; j < usersData.size(); j++) {
-                        Map<String, Integer> history = usersData.get(j).getHistory();
+        ArrayList<MovieInputData> movies = new ArrayList<>();
+        for (MovieInputData moviesDatum : moviesData) {
+            int yearNumber = moviesDatum.getYear();
+            if (Integer.toString(yearNumber).equals(year) || year == null) {
+                List<String> intersectElements = moviesDatum.getGenres().stream()
+                        .filter(genres::contains).sorted().collect(Collectors.toList());
+                Collections.sort(genres);
+
+                if (genres.equals(intersectElements) || genres.get(0) == null) {
+                    String title = moviesDatum.getTitle();
+
+                    for (UserInputData usersDatum : usersData) {
+                        Map<String, Integer> history = usersDatum.getHistory();
+
                         if (history != null) {
                             if (history.get(title) != null) {
-                                moviesData.get(i).addNumberOfViews(history.get(title));
+                                moviesDatum.addNumberOfViews(history.get(title));
                             }
                         }
                     }
-                    if (moviesData.get(i).getNumberOfViews() > 0) {
-                        movies.add(moviesData.get(i));
+
+                    if (moviesDatum.getNumberOfViews() > 0) {
+                        movies.add(moviesDatum);
                     }
                 }
             }
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(movies, new ViewsAscendingSortMovie());
+            movies.sort(new ViewsAscendingSortMovie());
         } else {
-            Collections.sort(movies, new ViewsAscendingSortMovie().reversed());
+            movies.sort(new ViewsAscendingSortMovie().reversed());
         }
 
-        ArrayList<String> movieTitles = new ArrayList<String>();
-        int count = 0;
-        for (int i = 0; i < movies.size(); i++) {
-            movieTitles.add(movies.get(i).getTitle());
-            count += 1;
-            if (count == number) {
-                break;
-            }
-        }
-
-        String message = "Query result: " + movieTitles.toString();
-        return message;
+        ArrayList<String> movieTitles = getMovieTitles(movies, number);
+        return "Query result: " + movieTitles.toString();
     }
 
     /**
@@ -1000,109 +815,55 @@ public final class Input {
      * @param number is the number of movies required
      * @return the result for most viewed show query
      */
-    public String mostViewdShows(final String year, final List<String> genres,
+    public String mostViewedShows(final String year, final List<String> genres,
                                  final String sortType, final int number) {
-        ArrayList<SerialInputData> serials = new ArrayList<SerialInputData>();
-        for (int i = 0; i < serialsData.size(); i++) {
-            if (year != null) {
-                Integer yearNumber = new Integer(serialsData.get(i).getYear());
-                if (yearNumber.toString().equals(year)) {
-                    if (genres.get(0) != null) {
-                        List<String> intersectElements = serialsData.get(i).getGenres().stream()
-                                .filter(genres::contains)
-                                .collect(Collectors.toList());
-                        Collections.sort(intersectElements);
-                        Collections.sort(genres);
-                        if (genres.equals(intersectElements)) {
-                            String title = serialsData.get(i).getTitle();
-                            for (int j = 0; j < usersData.size(); j++) {
-                                Map<String, Integer> history = usersData.get(j).getHistory();
-                                if (history != null) {
-                                    if (history.get(title) != null) {
-                                        serialsData.get(i).addNumberOfViews(history.get(title));
-                                    }
-                                }
-                            }
-                            if (serialsData.get(i).getNumberOfViews() > 0) {
-                                serials.add(serialsData.get(i));
-                            }
-                        }
-                    } else {
-                        String title = serialsData.get(i).getTitle();
-                        for (int j = 0; j < usersData.size(); j++) {
-                            Map<String, Integer> history = usersData.get(j).getHistory();
-                            if (history != null) {
-                                if (history.get(title) != null) {
-                                    serialsData.get(i).addNumberOfViews(history.get(title));
-                                }
-                            }
-                        }
-                        if (serialsData.get(i).getNumberOfViews() > 0) {
-                            serials.add(serialsData.get(i));
-                        }
-                    }
-                }
-            } else {
-                if (genres.get(0) != null) {
-                    List<String> intersectElements = serialsData.get(i).getGenres().stream()
-                            .filter(genres::contains)
-                            .collect(Collectors.toList());
-                    Collections.sort(intersectElements);
-                    Collections.sort(genres);
-                    if (genres.equals(intersectElements)) {
-                        String title = serialsData.get(i).getTitle();
-                        for (int j = 0; j < usersData.size(); j++) {
-                            Map<String, Integer> history = usersData.get(j).getHistory();
-                            if (history != null) {
-                                if (history.get(title) != null) {
-                                    serialsData.get(i).addNumberOfViews(history.get(title));
-                                }
-                            }
-                        }
-                        if (serialsData.get(i).getNumberOfViews() > 0) {
-                            serials.add(serialsData.get(i));
-                        }
-                    }
-                } else {
-                    String title = serialsData.get(i).getTitle();
-                    for (int j = 0; j < usersData.size(); j++) {
-                        Map<String, Integer> history = usersData.get(j).getHistory();
+        ArrayList<SerialInputData> serials = new ArrayList<>();
+        for (SerialInputData serialsDatum : serialsData) {
+            int yearNumber = serialsDatum.getYear();
+
+            if (Integer.toString(yearNumber).equals(year) || year == null) {
+                List<String> intersectElements = serialsDatum.getGenres().stream()
+                        .filter(genres::contains).sorted().collect(Collectors.toList());
+                Collections.sort(genres);
+
+                if (genres.equals(intersectElements) || genres.get(0) == null) {
+                    String title = serialsDatum.getTitle();
+
+                    for (UserInputData usersDatum : usersData) {
+                        Map<String, Integer> history = usersDatum.getHistory();
                         if (history != null) {
                             if (history.get(title) != null) {
-                                serialsData.get(i).addNumberOfViews(history.get(title));
+                                serialsDatum.addNumberOfViews(history.get(title));
                             }
                         }
                     }
-                    if (serialsData.get(i).getNumberOfViews() > 0) {
-                        serials.add(serialsData.get(i));
+
+                    if (serialsDatum.getNumberOfViews() > 0) {
+                        serials.add(serialsDatum);
                     }
                 }
             }
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(serials, new ViewAscendingSortserial());
+            serials.sort(new ViewAscendingSortSerial());
         } else {
-            Collections.sort(serials, new ViewAscendingSortserial().reversed());
+            serials.sort(new ViewAscendingSortSerial().reversed());
         }
 
-        ArrayList<String> movieTitles = new ArrayList<String>();
+        ArrayList<String> movieTitles = new ArrayList<>();
         int count = 0;
-        for (int i = 0; i < serials.size(); i++) {
-            movieTitles.add(serials.get(i).getTitle());
+        for (ShowInput serial : serials) {
+            movieTitles.add(serial.getTitle());
             count += 1;
             if (count == number) {
                 break;
             }
         }
 
-        String message = "Query result: " + movieTitles.toString();
-        return message;
+        return "Query result: " + movieTitles.toString();
     }
 
-    /**
-     * gets the most active number users and sorts them by sorTYpe
-     */
     /**
      * sort users by the number of ratings
      * @param number is the number of users required
@@ -1110,32 +871,31 @@ public final class Input {
      * @return the result for num_ratings users query
      */
     public String mostActiveUsers(final int number, final String sortType) {
-        ArrayList<UserInputData> users = new ArrayList<UserInputData>();
-        for (int i = 0; i < usersData.size(); i++) {
-            usersData.get(i).setNumberofRatings();
-            if (usersData.get(i).getNumberOfRatings() > 0) {
-                users.add(usersData.get(i));
+        ArrayList<UserInputData> users = new ArrayList<>();
+        for (UserInputData usersDatum : usersData) {
+            usersDatum.setNumberOfRatings();
+            if (usersDatum.getNumberOfRatings() > 0) {
+                users.add(usersDatum);
             }
         }
 
         if (sortType.equals("asc")) {
-            Collections.sort(users, new RatingsAscendingSortUser());
+            users.sort(new RatingsAscendingSortUser());
         } else {
-            Collections.sort(users, new RatingsAscendingSortUser().reversed());
+            users.sort(new RatingsAscendingSortUser().reversed());
         }
 
-        ArrayList<String> usernames = new ArrayList<String>();
+        ArrayList<String> usernames = new ArrayList<>();
         int count = 0;
-        for (int i = 0; i < users.size(); i++) {
-            usernames.add(users.get(i).getUsername());
+        for (UserInputData user : users) {
+            usernames.add(user.getUsername());
             count += 1;
             if (count == number) {
                 break;
             }
         }
 
-        String message = "Query result: " + usernames.toString();
-        return message;
+        return "Query result: " + usernames.toString();
     }
 
     /**
@@ -1144,19 +904,19 @@ public final class Input {
      * @return the result for standard recommendation
      */
     public String getStandardRecommendation(final String username) {
-        String message = new String("StandardRecommendation result: ");
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getUsername().equals(username)) {
-                for (int j = 0; j < moviesData.size(); j++) {
-                    String title = moviesData.get(j).getTitle();
-                    if (usersData.get(i).getHistory().get(title) == null) {
+        String message = "StandardRecommendation result: ";
+        for (UserInputData usersDatum : usersData) {
+            if (usersDatum.getUsername().equals(username)) {
+                for (MovieInputData moviesDatum : moviesData) {
+                    String title = moviesDatum.getTitle();
+                    if (usersDatum.getHistory().get(title) == null) {
                         message += title;
                         return message;
                     }
                 }
-                for (int j = 0; j < serialsData.size(); j++) {
-                    String title = serialsData.get(j).getTitle();
-                    if (usersData.get(i).getHistory().get(title) == null) {
+                for (SerialInputData serialsDatum : serialsData) {
+                    String title = serialsDatum.getTitle();
+                    if (usersDatum.getHistory().get(title) == null) {
                         message += title;
                         return message;
                     }
@@ -1164,7 +924,7 @@ public final class Input {
             }
         }
 
-        message = new String("StandardRecommendation cannot be applied!");
+        message = "StandardRecommendation cannot be applied!";
         return message;
     }
 
@@ -1174,11 +934,11 @@ public final class Input {
     public ArrayList<ShowInput> getVideosByRating() {
         resetSerialRating();
         resetMovieRating();
-        ArrayList<ShowInput> videos = new ArrayList<ShowInput>();
+        ArrayList<ShowInput> videos = new ArrayList<>();
         for (int i = 0; i < moviesData.size(); i++) {
             String title = moviesData.get(i).getTitle();
-            for (int j = 0; j < usersData.size(); j++) {
-                Map<String, Double> movieRatings = usersData.get(j).getRatedMovies();
+            for (UserInputData user : usersData) {
+                Map<String, Double> movieRatings = user.getRatedMovies();
                 if (movieRatings != null) {
                     if (movieRatings.get(title) != null) {
                         Double rate = movieRatings.get(title);
@@ -1193,9 +953,9 @@ public final class Input {
 
         for (int i = 0; i < serialsData.size(); i++) {
             String title = serialsData.get(i).getTitle();
-            for (int j = 0; j < usersData.size(); j++) {
+            for (UserInputData user : usersData) {
                 Map<String, HashMap<Integer, Double>> serialRatings
-                        = usersData.get(j).getRatedSerials();
+                        = user.getRatedSerials();
                 if (serialRatings != null) {
                     if (serialRatings.get(title) != null) {
                         HashMap<Integer, Double> seasonRatings = serialRatings.get(title);
@@ -1211,8 +971,29 @@ public final class Input {
             videos.add(serialsData.get(i));
         }
 
-        Collections.sort(videos, new RatingDescendingSort());
+        videos.sort(new RatingDescendingSort());
         return videos;
+    }
+
+    /**
+     * @param username is the username required
+     * @param videos is an arraylist of videos
+     * @return the title of the first video that the user has not seen
+     */
+    private String getVideoTitle(final String username, final ArrayList<ShowInput> videos) {
+        String message = "";
+        for (UserInputData usersDatum : usersData) {
+            if (usersDatum.getUsername().equals(username)) {
+                for (ShowInput video : videos) {
+                    String title = video.getTitle();
+                    if (usersDatum.getHistory().get(title) == null) {
+                        message += title;
+                        return message;
+                    }
+                }
+            }
+        }
+        return  message;
     }
 
     /**
@@ -1222,21 +1003,13 @@ public final class Input {
      * @return the result for best_unseen recommendation
      */
     public String getBestUnseen(final String username) {
-        String message = new String("BestRatedUnseenRecommendation result: ");
+        String message = "BestRatedUnseenRecommendation result: ";
         ArrayList<ShowInput> videos = getVideosByRating();
-        for (int i = 0; i < usersData.size(); i++) {
-           if (usersData.get(i).getUsername().equals(username)) {
-               for (int j = 0; j < videos.size(); j++) {
-                   String title = videos.get(j).getTitle();
-                   if (usersData.get(i).getHistory().get(title) == null) {
-                       message += title;
-                       return message;
-                   }
-               }
-           }
+        if (!getVideoTitle(username, videos).equals("")) {
+            return message + getVideoTitle(username, videos);
         }
 
-        message = new String("BestRatedUnseenRecommendation cannot be applied!");
+        message = "BestRatedUnseenRecommendation cannot be applied!";
         return message;
     }
 
@@ -1244,11 +1017,11 @@ public final class Input {
      * resets the number of views for each video
      */
     public void resetViews() {
-        for (int i = 0; i < moviesData.size(); i++) {
-            moviesData.get(i).setNumberOfViews(0);
+        for (MovieInputData moviesDatum : moviesData) {
+            moviesDatum.setNumberOfViews();
         }
-        for (int i = 0; i < serialsData.size(); i++) {
-            serialsData.get(i).setNumberOfViews(0);
+        for (SerialInputData serialsDatum : serialsData) {
+            serialsDatum.setNumberOfViews();
         }
     }
 
@@ -1258,25 +1031,25 @@ public final class Input {
      */
     public ArrayList<ShowInput> calculateNumberOfViews() {
         resetViews();
-        ArrayList<ShowInput> videos = new ArrayList<ShowInput>();
-        for (int i = 0; i < moviesData.size(); i++) {
-            String title = moviesData.get(i).getTitle();
-            for (int j = 0; j < usersData.size(); j++) {
-                if (usersData.get(j).getHistory().get(title) != null) {
-                    moviesData.get(i).addNumberOfViews(usersData.get(j).getHistory().get(title));
+        ArrayList<ShowInput> videos = new ArrayList<>();
+        for (MovieInputData moviesDatum : moviesData) {
+            String title = moviesDatum.getTitle();
+            for (UserInputData usersDatum : usersData) {
+                if (usersDatum.getHistory().get(title) != null) {
+                    moviesDatum.addNumberOfViews(usersDatum.getHistory().get(title));
                 }
             }
-            videos.add(moviesData.get(i));
+            videos.add(moviesDatum);
         }
 
-        for (int i = 0; i < serialsData.size(); i++) {
-            String title = serialsData.get(i).getTitle();
-            for (int j = 0; j < usersData.size(); j++) {
-                if (usersData.get(j).getHistory().get(title) != null) {
-                    serialsData.get(i).addNumberOfViews(usersData.get(j).getHistory().get(title));
+        for (SerialInputData serialsDatum : serialsData) {
+            String title = serialsDatum.getTitle();
+            for (UserInputData usersDatum : usersData) {
+                if (usersDatum.getHistory().get(title) != null) {
+                    serialsDatum.addNumberOfViews(usersDatum.getHistory().get(title));
                 }
             }
-            videos.add(serialsData.get(i));
+            videos.add(serialsDatum);
         }
         return  videos;
     }
@@ -1288,12 +1061,10 @@ public final class Input {
      * @return the result for popular recommendation
      */
     public String getMostPopularVideo(final String username) {
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getUsername().equals(username)) {
-                if (usersData.get(i).getSubscriptionType().equals("BASIC")) {
-                    String message
-                            = new String("PopularRecommendation cannot be applied!");
-                    return message;
+        for (UserInputData usersDatum : usersData) {
+            if (usersDatum.getUsername().equals(username)) {
+                if (usersDatum.getSubscriptionType().equals("BASIC")) {
+                    return "PopularRecommendation cannot be applied!";
                 } else {
                     break;
                 }
@@ -1302,21 +1073,21 @@ public final class Input {
 
         String message = "PopularRecommendation result: ";
         ArrayList<ShowInput> videos = calculateNumberOfViews();
-        /**
-         * calculate the number of views for each genre
-         * store the number of views for genres in a hashmap
+        /*
+         calculate the number of views for each genre
+         store the number of views for genres in a hashmap
          */
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
-        for (int i = 0; i < videos.size(); i++) {
-            Integer views = videos.get(i).getNumberOfViews();
-            ArrayList<String> genres = videos.get(i).getGenres();
-            for (int j = 0; j < genres.size(); j++) {
-                if (map.get(genres.get(j)) == null) {
-                    map.put(genres.get(j), views);
+        HashMap<String, Integer> map = new HashMap<>();
+        for (ShowInput showInput : videos) {
+            Integer views = showInput.getNumberOfViews();
+            ArrayList<String> genres = showInput.getGenres();
+            for (String genre : genres) {
+                if (map.get(genre) == null) {
+                    map.put(genre, views);
                 } else {
-                    Integer numberOfViews = map.get(genres.get(j));
+                    Integer numberOfViews = map.get(genre);
                     numberOfViews += views;
-                    map.replace(genres.get(j), numberOfViews);
+                    map.replace(genre, numberOfViews);
                 }
             }
         }
@@ -1326,23 +1097,22 @@ public final class Input {
         for (String key : keys) {
             views.add(map.get(key));
         }
-        Collections.sort(views, Collections.reverseOrder());
+        views.sort(Collections.reverseOrder());
 
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getUsername().equals(username)) {
-                for (int j = 0; j < views.size(); j++) {
+        for (UserInputData user : usersData) {
+            if (user.getUsername().equals(username)) {
+                for (Integer view : views) {
                     for (String key : keys) {
-                        if (map.get(key).equals(views.get(j))) {
-                            String genre = key;
-                            for (int k = 0; k < videos.size(); k++) {
-                                String title = videos.get(k).getTitle();
-                                ArrayList<String> videoGenre = videos.get(k).getGenres();
-                                for (int t = 0; t < videoGenre.size(); t++) {
-                                    if (videoGenre.get(t).equals(genre)) {
-                                        if (usersData.get(i).getHistory().get(title) == null) {
-                                            message += title;
-                                            return message;
-                                        }
+                        if (map.get(key).equals(view)) {
+                            for (ShowInput video : videos) {
+                                String title = video.getTitle();
+                                ArrayList<String> videoGenre = video.getGenres();
+
+                                for (String genre : videoGenre) {
+                                    if (genre.equals(key) && user.getHistory().get(title) == null) {
+                                        message += title;
+                                        return message;
+
                                     }
                                 }
                             }
@@ -1352,7 +1122,7 @@ public final class Input {
             }
         }
 
-        message = new String("PopularRecommendation cannot be applied!");
+        message = "PopularRecommendation cannot be applied!";
        return message;
     }
 
@@ -1361,7 +1131,7 @@ public final class Input {
      */
     public ArrayList<ShowInput> getVideosByFavorite() {
         markFavoriteShows();
-        ArrayList<ShowInput> videos = new ArrayList<ShowInput>();
+        ArrayList<ShowInput> videos = new ArrayList<>();
         for (int i = 0; i < moviesData.size(); i++) {
             moviesData.get(i).setPosition(i);
             videos.add(moviesData.get(i));
@@ -1370,7 +1140,7 @@ public final class Input {
             serialsData.get(i).setPosition(moviesData.size() + i - 1);
             videos.add(serialsData.get(i));
         }
-        Collections.sort(videos, new FavoriteDescendingSort());
+        videos.sort(new FavoriteDescendingSort());
         return videos;
     }
 
@@ -1381,12 +1151,10 @@ public final class Input {
      * @return the result for favorite recommendation
      */
     public String getMostFavorite(final String username) {
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getUsername().equals(username)) {
-                if (usersData.get(i).getSubscriptionType().equals("BASIC")) {
-                    String message
-                            = new String("FavoriteRecommendation cannot be applied!");
-                    return message;
+        for (UserInputData usersDatum : usersData) {
+            if (usersDatum.getUsername().equals(username)) {
+                if (usersDatum.getSubscriptionType().equals("BASIC")) {
+                    return "FavoriteRecommendation cannot be applied!";
                 } else {
                     break;
                 }
@@ -1394,20 +1162,12 @@ public final class Input {
         }
 
         ArrayList<ShowInput> videos = getVideosByFavorite();
-        String message = new String("FavoriteRecommendation result: ");
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getUsername().equals(username)) {
-                for (int j = 0; j < videos.size(); j++) {
-                    String title = videos.get(j).getTitle();
-                    if (usersData.get(i).getHistory().get(title) == null) {
-                        message += title;
-                        return message;
-                    }
-                }
-            }
+        String message = "FavoriteRecommendation result: ";
+        if (!getVideoTitle(username, videos).equals("")) {
+            return message + getVideoTitle(username, videos);
         }
 
-        message = new String("FavoriteRecommendation cannot be applied!");
+        message = "FavoriteRecommendation cannot be applied!";
         return message;
     }
 
@@ -1417,12 +1177,10 @@ public final class Input {
      * @return the result for search recommendation
      */
     public String getSearchList(final String username, final String genre) {
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getUsername().equals(username)) {
-                if (usersData.get(i).getSubscriptionType().equals("BASIC")) {
-                    String message
-                            = new String("SearchRecommendation cannot be applied!");
-                    return message;
+        for (UserInputData usersDatum : usersData) {
+            if (usersDatum.getUsername().equals(username)) {
+                if (usersDatum.getSubscriptionType().equals("BASIC")) {
+                    return "SearchRecommendation cannot be applied!";
                 } else {
                     break;
                 }
@@ -1430,18 +1188,19 @@ public final class Input {
         }
 
         ArrayList<ShowInput> videos = getVideosByRating();
-        Collections.sort(videos, new RatingAscendingSort());
+        videos.sort(new RatingAscendingSort());
 
-        String message = new String("SearchRecommendation result: ");
-        ArrayList<String> videoTitles = new ArrayList<String>();
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getUsername().equals(username)) {
-                for (int j = 0; j < videos.size(); j++) {
-                    String title = videos.get(j).getTitle();
-                    ArrayList<String> videoGenre = videos.get(j).getGenres();
-                    for (int k = 0; k < videoGenre.size(); k++) {
-                        if (videoGenre.get(k).equals(genre)) {
-                            if (usersData.get(i).getHistory().get(title) == null) {
+        String message = "SearchRecommendation result: ";
+        ArrayList<String> videoTitles = new ArrayList<>();
+        for (UserInputData usersDatum : usersData) {
+            if (usersDatum.getUsername().equals(username)) {
+                for (ShowInput video : videos) {
+                    String title = video.getTitle();
+                    ArrayList<String> videoGenre = video.getGenres();
+
+                    for (String s : videoGenre) {
+                        if (s.equals(genre)) {
+                            if (usersDatum.getHistory().get(title) == null) {
                                 videoTitles.add(title);
                             }
                         }
@@ -1453,7 +1212,7 @@ public final class Input {
         if (videoTitles.size() > 0) {
             message += videoTitles.toString();
         } else {
-            message = new String("SearchRecommendation cannot be applied!");
+            message = "SearchRecommendation cannot be applied!";
         }
         return message;
     }

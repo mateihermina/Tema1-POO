@@ -31,12 +31,11 @@ public final class UserInputData {
     /**
      * The ratings for the serials seen and rated
      */
-    private Map<String, HashMap<Integer, Double>> ratedSerials =
-                                                new HashMap<String, HashMap<Integer, Double>>();
+    private final Map<String, HashMap<Integer, Double>> ratedSerials = new HashMap<>();
     /**
      * The ratings for the movies seen and rated
      */
-    private Map<String, Double> ratedMovies = new HashMap<String, Double>();
+    private final Map<String, Double> ratedMovies = new HashMap<>();
     /**
      * the number of ratings
      */
@@ -93,7 +92,7 @@ public final class UserInputData {
      * @return the result for favorite command
      */
     public String addFavorite(final String movie) {
-        String res = new String("");
+        String res = "";
         if (this.history.get(movie) == null) {
             res += "error -> ";
             res += movie;
@@ -102,8 +101,8 @@ public final class UserInputData {
         } else {
             Integer seen = this.history.get(movie);
             if (seen > 0) {
-                for (int i = 0; i < favoriteMovies.size(); i++) {
-                    if (favoriteMovies.get(i).equals(movie)) {
+                for (String favoriteMovie : favoriteMovies) {
+                    if (favoriteMovie.equals(movie)) {
                         res += "error -> ";
                         res += movie;
                         res += " is already in favourite list";
@@ -126,12 +125,12 @@ public final class UserInputData {
      * @return the result for view command
      */
     public String viewShow(final String title) {
-        String message = new String("");
+        String message = "";
         if (this.history.get(title) == null) {
             this.history.put(title, 1);
-            Integer views = 1;
+            int views = 1;
             message += "success -> " + title + " was viewed with total views of "
-                    + views.toString();
+                    + views;
         } else {
             Integer views = this.history.get(title);
             views++;
@@ -152,12 +151,12 @@ public final class UserInputData {
      * @return the result for rating command
      */
     public String addRating(final String title, final int seasonNumber, final Double rating) {
-        String message = new String("");
+        String message = "";
         if (history.get(title) != null) {
-            /** video marked as viewed **/
+            /*video marked as viewed */
 
             if (seasonNumber == 0) {
-                /** movie **/
+                /* movie */
                 if (ratedMovies.get(title) == null) {
                     ratedMovies.put(title, rating);
                     message += "success -> " + title + " was rated with "
@@ -166,7 +165,7 @@ public final class UserInputData {
                     message += "error -> " + title + " has been already rated";
                 }
 
-            } else { /** serial **/
+            } else { /* serial */
                 if (ratedSerials.get(title) != null) {
                     if (ratedSerials.get(title).get(seasonNumber) == null) {
                         ratedSerials.get(title).put(seasonNumber, rating);
@@ -177,7 +176,7 @@ public final class UserInputData {
                     }
 
                 } else {
-                    HashMap<Integer, Double> seasonsRating = new HashMap<Integer, Double>();
+                    HashMap<Integer, Double> seasonsRating = new HashMap<>();
                     seasonsRating.put(seasonNumber, rating);
                     ratedSerials.put(title, seasonsRating);
                     message += "success -> " + title + " was rated with "
@@ -195,8 +194,8 @@ public final class UserInputData {
     /**
      * Calculates the number of ratings that a user has given to movies and serials
      */
-    public void setNumberofRatings() {
-        Integer number = 0;
+    public void setNumberOfRatings() {
+        int number = 0;
         number += this.ratedMovies.size();
         Set<String> keys = this.ratedSerials.keySet();
         for (String key : keys) {
@@ -218,11 +217,7 @@ class RatingsAscendingSortUser implements Comparator<UserInputData> {
         } else if (user1.getNumberOfRatings() > user2.getNumberOfRatings()) {
             return 1;
         } else {
-            if (user1.getUsername().compareTo(user2.getUsername()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return user1.getUsername().compareTo(user2.getUsername());
         }
     }
 }

@@ -83,11 +83,7 @@ class RatingDescendingSort implements Comparator<ShowInput> {
         } else if (video1.getRating() > video2.getRating()) {
             return -1;
         } else {
-            if (video1.getPosition() < video2.getPosition()) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return Integer.compare(video1.getPosition(), video2.getPosition());
         }
     }
 }
@@ -113,11 +109,7 @@ class FavoriteDescendingSort implements Comparator<ShowInput> {
         } else if (video1.getFavorite() > video2.getFavorite()) {
             return -1;
         } else {
-            if (video1.getPosition() < video2.getPosition()) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return Integer.compare(video1.getPosition(), video2.getPosition());
         }
     }
 }

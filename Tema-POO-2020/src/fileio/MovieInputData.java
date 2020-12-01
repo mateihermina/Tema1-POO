@@ -18,9 +18,11 @@ public final class MovieInputData extends ShowInput {
      */
     private int favorite = 0;
     /**
-     * the rating for the movie
-     * at first, the ratings added by users sum up to rating, so it stores the sum of all ratings
-     * after setRating is applied, rating stores the average rating for the movie
+     * sum of the ratings given by users
+     */
+    private Double sumOfRatings = 0.0;
+    /**
+     * the average rating for the movie
      */
     private Double rating = 0.0;
     /**
@@ -77,7 +79,7 @@ public final class MovieInputData extends ShowInput {
         int ratings = this.getRatingsNumber();
         ratings++;
         this.setRatingsNumber(ratings);
-        this.rating += rate;
+        this.sumOfRatings += rate;
     }
 
     /**
@@ -86,7 +88,7 @@ public final class MovieInputData extends ShowInput {
     public void setRating() {
 
         if (this.getRatingsNumber() > 0) {
-            this.rating = this.getRating() / this.getRatingsNumber();
+            this.rating = this.sumOfRatings / this.ratingsNumber;
         } else {
             this.rating = 0.0;
         }
@@ -98,6 +100,7 @@ public final class MovieInputData extends ShowInput {
     public void resetRating() {
         this.rating = 0.0;
         this.ratingsNumber = 0;
+        this.sumOfRatings = 0.0;
     }
 
     /**
@@ -110,7 +113,11 @@ public final class MovieInputData extends ShowInput {
     public Integer getNumberOfViews() {
         return numberOfViews;
     }
-    public void setNumberOfViews(final Integer views) {
+
+    /**
+     * sets the number of views to 0
+     */
+    public void setNumberOfViews() {
         this.numberOfViews = 0;
     }
     public Double getRating() {
@@ -152,11 +159,7 @@ class RatingAscendingSortMovie implements Comparator<MovieInputData> {
         } else if (movie1.getRating() > movie2.getRating()) {
             return 1;
         } else {
-            if (movie1.getTitle().compareTo(movie2.getTitle()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return movie1.getTitle().compareTo(movie2.getTitle());
         }
     }
 }
@@ -168,11 +171,7 @@ class RatingDescendingSortMovie implements Comparator<MovieInputData> {
         } else if (movie1.getRating() > movie2.getRating()) {
             return -1;
         } else {
-            if (movie1.getTitle().compareTo(movie2.getTitle()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return movie1.getTitle().compareTo(movie2.getTitle());
         }
     }
 }
@@ -185,11 +184,7 @@ class DurationAscendingSortMovie implements Comparator<MovieInputData> {
         } else if (movie1.getDuration() > movie2.getDuration()) {
             return 1;
         } else {
-            if (movie1.getTitle().compareTo(movie2.getTitle()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return movie1.getTitle().compareTo(movie2.getTitle());
         }
     }
 }
@@ -202,11 +197,7 @@ class ViewsAscendingSortMovie implements Comparator<MovieInputData> {
         } else if (movie1.getNumberOfViews() > movie2.getNumberOfViews()) {
             return 1;
         } else {
-            if (movie1.getTitle().compareTo(movie2.getTitle()) < 0) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return movie1.getTitle().compareTo(movie2.getTitle());
         }
     }
 }

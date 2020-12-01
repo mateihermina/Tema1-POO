@@ -8,18 +8,18 @@ import fileio.Input;
 import fileio.InputLoader;
 import fileio.Writer;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * The entry point to this homework. It runs the checker that tests your implentation.
+ * The entry point to this homework. It runs the checker that tests your implementation.
  */
 public final class Main {
     /**
@@ -65,6 +65,7 @@ public final class Main {
      * @param filePath2 for output file
      * @throws IOException in case of exceptions to reading / writing
      */
+    @SuppressWarnings("unchecked")
     public static void action(final String filePath1,
                               final String filePath2) throws IOException {
         InputLoader inputLoader = new InputLoader(filePath1);
@@ -73,16 +74,12 @@ public final class Main {
         Writer fileWriter = new Writer(filePath2);
         JSONArray arrayResult = new JSONArray();
 
-
-        //TODO add here the entry point to your implementation
-
-        List<ActionInputData> actionInputData = new ArrayList<ActionInputData>();
-        actionInputData = input.getCommands();
-
-        for (int i = 0; i < actionInputData.size(); i++) {
-            int id = actionInputData.get(i).getActionId();
-            String message = input.getMessage(actionInputData.get(i));
-            arrayResult.add(fileWriter.writeFile(id, null, message));
+        List<ActionInputData> actionInputData = input.getCommands();
+        for (ActionInputData action : actionInputData) {
+            int id = action.getActionId();
+            String message = input.getMessage(action);
+            JSONObject output = fileWriter.writeFile(id, message);
+            arrayResult.add(output);
         }
         fileWriter.closeJSON(arrayResult);
     }
