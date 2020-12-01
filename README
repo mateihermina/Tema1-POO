@@ -1,0 +1,250 @@
+Name: Matei Hermina-Maria
+Group: 321CD
+
+Tema - VideosDB
+
+My logic of resolving the homework
+
+Main.java:
+-> action method iterates through all actions given at input and applies
+getMessage method for all actions
+
+Input.java:
+-> implements getMessage method, which uses other methos depending on the action
+type: applyCommand, applyQuery and applyRecommendation
+
+-> applyCommand method applies the command depending on the type
+-> applyQuery method applies the query depending on the type
+-> applyRecommendation method applies the reccomendation depending on the type
+All of the above methods, aplly other methods depending on the task required and
+return a message that is written to the output 
+
+UserInputData.java:
+-> contains fields and methods that are applied to an user
+-> contains classes that implement Comparator Interface and override the compare
+method (are used for sorting users)
+
+ShowInputData.java:
+-> contains fields and abstract methods that are applied to a show (serial or
+movie)
+-> contains classes that implement Comparator Interface and override the compare
+method (are used for sorting shows -serials and movies together-)
+
+MovieInputData.java:
+-> contains fields and methods that are applied to a movie
+-> contains classes that implement Comparator Interface and override the compare
+method (are used for sorting movies)
+
+SerialInputData.java:
+-> contains fields and methods that are applied to a serial
+-> contains classes that implement Comparator Interface and override the compare
+method (are used for sorting serials)
+
+ActorInputData.java:
+-> contains fields and methods that are applied to an actor
+-> contains classes that implement Comparator Interface and override the compare
+method (are used for sorting actors)
+
+In order to implement the solution, I added fields and methods to the Input
+classes, all having a description. 
+
+Tasks:
+
+
+I.Commands:
+
+1) Favorite -> implemented in UserInputData.java in addFavorite method
+
+2) View -> implemented in UserInputData.java in viewShow method
+
+3) Rating -> implemented in UserInputData.java in addRating method
+
+In order to store the ratings that the user has given to videos, I declared two
+fileds:
+Map<String, Double> ratedMovies => the key is the title of the movie and the
+value is the rating
+Map<String, HashMap<Integer, Double>> ratedSerials => the key is the title of
+the movie and the value is a hashmap for which the key is the season number and
+the value is the rating given by the user
+
+II.Queries:
+
+1) For actors
+
+	a) Average -> implemented in Input.java in sortBestActors method
+
+	For each actor, I calculate the average rating as the average rating of the
+	videos in which the actor played. In order to calculate the rating for the
+	videos, I search in userdata for users that have rated the video (I check 
+	if the video title is a valid key in ratedMovies or ratedSerials).
+	After determinating the average rating for all actors, I sort them as 
+	required by using AverageAscendingSortActor class.
+
+	b) Awards -> implemented in Input.java in actorsByAwards method
+
+	For each actor, I check if the actor has the awards required. If he has the
+	awards required, then I calculate the number of all awards that the 
+	actor won and I add the actor to an arraylist. Finally, I sort the arraylist
+	in the order required and I return an arraylist with the name of the actors.
+	In order to calculate the total number of awards of an actor, I created the
+	field awardsNumber and the method calculateAwardsNumber in ActorInputData.
+
+	c) Filter Description -> implemented in Input.java in actorsByKeywords 
+	method
+
+	For each actor, I check if the actor's career description contains the words
+	required. If actor's career description contains the words required, then I
+	add the name of the actor to an arraylist and I sort the array as specified.
+	In order to check if the actor's career description has the keywords, I
+	implemented the hasKeywords method in ActorInputData.
+
+2) For videos:
+	
+	a) Rating -> implemented in Input.java
+			  -> bestRatedMovies method for movies
+			  -> bestRatedShow method for serials
+
+	bestRatedMovies method -> finds the movies that have the filters specified
+	(year and genres), calculates their rating and adds them to an arraylist
+	Finally, the arraylist is sorted as required and I return the query result.
+	bestRatedShow method -> finds the serials that have the filters specified
+	(year and genres), calculates their rating and adds them to an arraylist
+	Finally, the arraylist is sorted as required and and I return the query
+	result.
+
+	In order to calculate the rating for a movie/serial, I iterate through 
+	userData, checking if the user has rated the current movie/serial.
+	The rating for a movie is calculated using the fields: sumOfRatings, rating
+	and ratingsNumber and the methods addRating and setRating from 
+	MovieInputData.java.
+	The rating for a serial is calculated using the fiels: rating and 
+	ratingsOfSeasons, a hashmap for which the key is the season number and the
+	value is another hashmap, with the key representing the number of ratings
+	given to the season and the value representig the sum of ratings. Also, the
+	methods numberOfRatingsForSeason, addRating and setRating are used to find
+	the rating for a serial. The fields and mehods specified are implemented in
+	SerialInputData.java.
+
+	b) Favorite -> implemented in Input.java
+			    -> mostFavoriteMovies method for movies
+			    -> mostFavoriteShow method for serials
+	At first, in both methods is applied the  markFavoriteShows() method, also
+	implemented in Input.java, which finds for how many times users has aded the
+	video to favourite list. The number of occurrences of the video in the 
+	favourite list of users is stored in the field favorite for both movies and
+	serial. In ShowInputData are declared the abstract methods markFavorite and
+	getFavorite. Their implementation is in both MovieInputData.java and
+	SerialInputData.java.
+
+	mostFavoriteMovies method -> finds the movies that have the filters
+	specified (year and genres) and adds them to an arraylist
+	Finally, the arraylist is sorted as required and I return the query result.
+	bestRatedShow method -> finds the serials that have the filters specified
+	(year and genres) and adds them to an arraylist
+	Finally, the arraylist is sorted as required and I return the query result.
+
+	c) Longest -> implemented in Input.java
+			   -> longestMovies method for movies
+			   -> longestShow method for serials
+	longestMovies method -> finds the movies that have the filters specified
+	(year and genres) and adds them to an arraylist
+	Finally, the arraylist is sorted by duration as required and I return the
+	query result.
+	bestRatedShow method -> finds the serials that have the filters specified
+	(year and genres), calculates their duration and adds them to an arraylist
+	Finally, the arraylist is sorted by duration as required and I return the
+	query result.
+	In order to calculate the total duration of a serial, I defined the field 
+	totalDuration and the method setTotalDuration in SerialInputData.java.
+
+	d) Most Viewed -> implemented in Input.java
+			   	   -> mostViewedMovies method for movies
+			       -> mostViewedShows method for serials 
+
+	mostViewedMovies method -> finds the movies that have the filters specified
+	(year and genres), calculates their number of views and adds them to an
+	arraylist
+	Finally, the arraylist is sorted as required and I return the query result.
+	mostViewedShows method -> finds the serials that have the filters specified
+	(year and genres), calculates their number of views and adds them to an
+	arraylist
+	Finally, the arraylist is sorted as required and I return the query result.
+
+	In order to calculate the number of views for a movie/serial, I iterate
+	through userData, checking if the user has viewd the current movie/serial.
+	The number of views is stored in numberOfViews field for both serils and 
+	movies. In order to increase the number of views for both movies and serials
+	is used addNumberOfViews method. The method and the field are both in
+	MovieInputData.java and SerialInputData.java.
+
+3) For users:
+	a) Number of ratings -> implemented in Input.java in mostActiveUsers method
+
+	In UserInputData.java I declared the field numberOfRatings and the method 
+	setNumberOfRatings which determines how many ratings a user has given
+	In mostActiveUsers method, I iterate through all users, I calculate their
+	number of ratings and I add them to an arraylist of users. Finally, I sort
+	the arraylist by the number of ratings in the order required and I return 
+	the query result.
+
+
+III. Recommendations
+	
+1) Recommendation strategies
+	
+	a) Standard -> implemented in Input.java in getStandardRecommendation method 
+
+	In order to get the information of the user, I iterate through userData and
+	I find the user's information by username. Finally, I return the first video
+	that the user has not seen by checking if the title of the video can be
+	found in the user's history, as the recommendation result.
+
+	b)Best unseen -> implemented in Input.java in getBestUnseen method
+
+	Firstly, I use the getVideosByRating method, also implemented in Input.java,
+	which returns a list of videos sorted by their ratings in descending order.
+	If the ratings of two videos are equal, the videos are sorted by their order
+	in the database. To store the position of the video in database, I declared
+	the field position in both SerialInputData.java and MovieInputData.java,
+	which can be set by setPosition method.
+
+	After I get the information of the user required, I return the first video
+	from the video list that the user has not seen, as the recommendation
+	result.
+
+2) For premium users:
+
+	a) Popular -> implemented in Input.java in getMostPopularVideo method
+
+	At first, I applay calculateNumberOfViews method with calculates the number
+	of views for all videos from database and returns a list with all videos
+	from database. Then, I store in a hashmap the number of views for each genre
+	(the key is the genre and the value is the number of views). I sort the
+	values of the hashmap in descending order and I store them in an arraylist
+	called views.
+	After I get the user's information, I iterate through the elements of views.
+	For each element of views, I find the corresponding key from the
+	haskmap (the genre). I search in videolist for the first video that has that
+	genre and I check if the user has seen that video.
+	Finally, I return the first video that the user has not seen and has the
+	most popular genre, as the recommendation result.
+
+	b) Favorite -> implemented in Input.java in getMostFavorite method
+
+	At first, I get the list of videos sorted in descending order of favorite
+	field by using the getVideosByFavorite method. If the videos has the same
+	favorite number, then I sort the videos by their position in database, using
+	position field.
+	After I get the user information (find the username in userData), I return
+	the the most favorite video that a user has not seen, as the recommendation
+	result.
+
+	c) Search -> implemented in Input.java in getSearchList method
+
+	At first, I get the videos sorted by their ratings in descending order by
+	applying getVideosByRating method. If two videos have the same rating, they
+	are sorted by their titles.
+	After I get the user information (find the username in userData), I return
+	the the all the videos that the user has not seen that have the genre 
+	required, as the recommendation result.
+	
